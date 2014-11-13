@@ -204,7 +204,7 @@ bool catalogManager::Create_Database(string DB_Name)
 
 	return true;
 }
-//emptyAmount/emptyBlock[1000]
+//emptyAmount/emptyBlock[100]:-1。
 bool catalogManager::Create_Table(table_info newTable, string DB_Name)
 {
 	if(DB_Name != dbName)
