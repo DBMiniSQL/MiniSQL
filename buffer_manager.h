@@ -1,4 +1,7 @@
 /***********************************************
+getAvaBlock: dbName，tableName。返回指针
+getDataBlock: dbName，tableName，blockNum。返回指针
+
 **对MiniSQL的修改：
 **1.修改了接口！！！！！
 **
