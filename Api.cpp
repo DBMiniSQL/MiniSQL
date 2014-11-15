@@ -1,6 +1,6 @@
-#include <api.h>
+#include "Api.h"
 
-bool API::createDatabase(string dbName){
+bool Api::createDatabase(string dbName){
 	return CatalogManager::createDatabase(dbName);
 }
 
@@ -13,37 +13,37 @@ bool useDatabase(string dbName){
 	return CatalogManager::useDatabase(dbName)
 }
 
-bool API::createTable(Table table){
+bool Api::createTable(Table table){
 	return CatalogManager::createTable(table);
 }
 
-bool API::dropTabel(Table table){
+bool Api::dropTabel(Table table){
 	return CatalogManager::dropTable(table);
 }
 
-bool API::createIndex(Index index){
+bool Api::createIndex(Index index){
 	return CatalogManager::createIndex(index);
 }
 
-bool API::dropIndex(Index index){
+bool Api::dropIndex(Index index){
 	return CatalogManager::dropIndex(index);
 }
 
-bool API::selectRecord(string tableName,vector<string>& columns,vector<Condition>& conds){
+bool Api::selectRecord(string tableName,vector<string>& columns,vector<Condition>& conds){
 	return RecordManager::selectRecord(tableName,columns,conds);
 }
 
-bool API::insertRecord(string tableName,vector<string>& values){
+bool Api::insertRecord(string tableName,vector<string>& values){
 	return RecordManager::insertRecord(tableName,values);
 }
 
-bool API::deleteRecord(string tableName,vector<Condition>& conds){
+bool Api::deleteRecord(string tableName,vector<Condition>& conds){
 	return RecordManager::deleteRecord(tableName,conds);
 }
 
-bool API::quit(){
+bool Api::quit(){
 	return quitProc()
 }
 
-// bool API::execfile(string fileName){
+// bool Api::execfile(string fileName){
 // }

@@ -13,10 +13,10 @@
 #include "catalog_manager.h"
 #include "interpreter.h"
 
-class API{
+class Api{
 public:
-	API(){}
-	virtual ~API()
+	Api(){}
+	virtual ~Api()
 	static bool createDatabase(string dbName);
 	static bool dropDatabase(string dbName);
 	static bool useDatabase(string dbName);

@@ -1,6 +1,6 @@
 #include "Definition.h"
 
-blockInfo::blockInfo(){
+BlockInfo::BlockInfo(){
 	blockNum = -1;
 	dirtyBit = 0;
 	next = NULL;
@@ -12,11 +12,11 @@ blockInfo::blockInfo(){
 	lock = 0;	
 }
 
-blockInfo::~blockInfo(){
+BlockInfo::~BlockInfo(){
 	delete [] cBlock;
 }
 
-void blockInfo::clearBlock(){
+void BlockInfo::clearBlock(){
 	blockNum = -1;
 	dirtyBit = 0;
 	next = NULL;
