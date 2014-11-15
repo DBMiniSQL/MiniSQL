@@ -4,6 +4,7 @@
 #include <string.h>
 #include <vector>
 #include <iostream>
+#include <fstream>
 
 #define DATAFILE 0
 #define INT 1
@@ -11,7 +12,10 @@
 #define CHAR 3
 
 #define FILLEMPTY "0"
-#define BLOCKSIZE 4096
+#define BLOCKSIZE 4096			//the size of the block
+	
+#define MAX_FILE_ACTIVE	5		//limit the active files in the buffer
+#define MAX_BLOCK		50 		//the max number of blocks
 
 using namespace std;
 
@@ -64,8 +68,24 @@ public:
 	int iTime;
 	int lock;
 	int father;
-	blockInfo(){};
-	~blockInfo(){};
+	bool isFull;
+	blockInfo();
+	~blockInfo();
+	void clearBlock();
 };
+
+class fileInfo{
+public:
+	int type;					//0 for Data File
+								//1 for Index File
+	string fileName;			//the name of the file
+	int recordAmount;			//the number of the record in th file
+	int freeNum;				//the free block number which could be used for the file
+	fileInfo* next;				//the pointer points to the next file
+	blockInfo* firstBlock;		//point to the first blcok within the file
+	fileInfo();
+	~fileInfo();
+};
+
 
 #endif
