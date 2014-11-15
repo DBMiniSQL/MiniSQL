@@ -1,37 +1,11 @@
 /***********************************************
-**对MiniSQL的修改：
-**1.修改了接口！！！！！
-**
-**疑问：
-**1.不需要使用using namespace std？
-**2.结构体声明为类会不会好一点？
-**3.findBlock传dbName有什么用？
-**4.我如何确定我的blockNum
-**
-**Tips:
-**1.最常用的放在链表的最后，LRU的直接比较文件头
-**2.iTime越大表示被用得越多
-**4.对于文件系统的假定：
-**	1.使用catalog文件存储所有数据库的结构信息
-**	2.使用DB_File.db文件存储所有的数据文件信息
-**	3.使用DB_File.index文件存储所有的索引文件信息
-**	4.文件的最前面先写三个int的参数，依次是：blockAmount，recordLength，recordAmout
-**	5.所有的文件都放在根目录下面，之后再考虑添加文件夹的操作
-**	6.writeBlock的范围：
-**		1.上层插入数据之后，上层修改数据之后，关闭File或者Block之前写回
-**		2.文件的创建貌似是catalog的事情，块的插入貌似是record的事情
-**5.多出口的goto语句
-**
-**接口说明
+**Buffer_Manager
 ************************************************/
 
 #if !defined(_BUFFER_MANAGER_H_)
 #define _BUFFER_MANAGER_H_
 
 #include <fstream>
-
-
-//最好能够在BlockInfo里面加上recordAmount!
 
 class fileHandle{
 public:
