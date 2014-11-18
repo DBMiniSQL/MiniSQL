@@ -145,6 +145,14 @@ bool CatalogManager::initialCatalog()
 	{//fill in the vector of tables
 		TableInfo temp_table;
 		fin >> temp_table.name;
+		fin >> temp_table.primaryKey;
+		fin >> temp_table.uniNum;
+		for (int j = 0; j < temp_table.uniNum; ++j)
+		{
+			string tempStr;
+			fin >> tempStr;
+			temp_table.unique.push_back(tempStr);
+		}	
 		fin >> temp_table.attrNum;
 		//fin >> temp_table.blockNum;
 		for(int j = 0; j < temp_table.attrNum; j++)
@@ -187,6 +195,10 @@ bool CatalogManager::storeCatalog()
 	for(int i = 0; i < tableNum; i++)
 	{
 		fout << tables[i].name << " ";
+		fout << tables[i].primaryKey << " ";
+		fout << tables[i].uniNum << " ";
+		for (int j = 0; j < tables[i].uniNum; ++j)
+			fout << tables[i].unique[j] << " ";
 		fout << tables[i].attrNum <<" ";
 		fout << tables[i].totalLength << endl;
 		for(int j = 0; j < tables[i].attrNum; j++)

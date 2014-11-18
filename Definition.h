@@ -78,12 +78,13 @@ class TableInfo
 public:
 	string name;
 	string primaryKey;
+	int uniNum;			//uniNum = unique.size()
 	vector<string> unique;
 	int attrNum;		//表中含有的属性数
 						//在Interpreter中位attriNum
 	int totalLength;	//值为sum(attributes[i].length)
 	vector<AttrInfo> attributes;
-	TableInfo() :attrNum(0), totalLength(0){};
+	TableInfo() :attrNum(0), totalLength(0), uniNum(0){};
 	~TableInfo(){};
 	void debug(){
 		cout << name << " " << primaryKey << " " << attrNum << endl;
