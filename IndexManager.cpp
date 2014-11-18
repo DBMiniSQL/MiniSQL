@@ -1,5 +1,5 @@
 /*
- * IndexManager.cpp
+ * Index_Manager.cpp
  *
  *  Created on: 2014Äê10ÔÂ31ÈÕ
  *      Author: Chong Xiaoya
@@ -15,7 +15,7 @@
 #include <algorithm>
 using namespace std;
 
-void BPlusTree::search(string dbName,IndexInfo inform,Condition con,vector<Result>& res)
+void BPlusTree::searchIndex(string dbName,IndexInfo inform,Condition con,vector<Result>& res)
 {
 	int type;
 	if(inform.type==CHAR)
@@ -109,7 +109,7 @@ void BPlusTree::searchOne(string dbName,IndexInfo inform,vector<Result>& res){
 			if(compare==0){
 				string Linfo=info.substr(start-LBIT,LBIT);
 				Result a;
-				a.blocknum=getBlockNum(Linfo.substr(0,BBIT));
+				a.blockNum=getBlockNum(Linfo.substr(0,BBIT));
 				a.offsets.push_back(getOffset(Linfo.substr(BBIT,VBIT)));
 				res.push_back(a);
 				return;
@@ -337,7 +337,7 @@ void BPlusTree::getResult(string dbName,string name,int start,int end,IndexInfo 
 							/*²éÕÒÈÝÆ÷ÖÐÊÇ·ñ´æÔÚ¿éºÅ*/
 							int find=0;
 							for(unsigned int k=0;k<res.size();k++){
-								if(getBlockNum(newInfo.substr(0,BBIT))==res[k].blocknum){
+								if(getBlockNum(newInfo.substr(0,BBIT))==res[k].blockNum){
 									int offset=getOffset(newInfo.substr(BBIT,OBIT));
 									res[k].offsets.push_back(offset);
 									find=1;
@@ -347,7 +347,7 @@ void BPlusTree::getResult(string dbName,string name,int start,int end,IndexInfo 
 							/*Èç¹û²»´æÔÚ£¬ÔòÔÙÈÝÆ÷×îºó¼ÓÈëÒ»¸öresult£¬ËüÓÐ¿éºÅºÍÒ»¸öÆ«ÒÆÁ¿*/
 							if(find==0){
 								Result a;
-								a.blocknum=getBlockNum(newInfo.substr(0,BBIT));
+								a.blockNum=getBlockNum(newInfo.substr(0,BBIT));
 								int offset=getOffset(newInfo.substr(BBIT,OBIT));
 								a.offsets.push_back(offset);
 								res.push_back(a);
@@ -369,7 +369,7 @@ void BPlusTree::getResult(string dbName,string name,int start,int end,IndexInfo 
 					/*¿éºÅÊÇ·ñÔÚÈÝÆ÷ÖÐ*/
 					int find=0;
 					for(unsigned int k=0;k<res.size();k++){
-						if(getBlockNum(newInfo.substr(0,BBIT))==res[k].blocknum){
+						if(getBlockNum(newInfo.substr(0,BBIT))==res[k].blockNum){
 							int offset=getOffset(newInfo.substr(BBIT,OBIT));
 							res[k].offsets.push_back(offset);
 							find=1;
@@ -378,7 +378,7 @@ void BPlusTree::getResult(string dbName,string name,int start,int end,IndexInfo 
 					}
 					if(find==0){
 						Result a;
-						a.blocknum=getBlockNum(newInfo.substr(0,BBIT));
+						a.blockNum=getBlockNum(newInfo.substr(0,BBIT));
 						int offset=getOffset(newInfo.substr(BBIT,OBIT));
 						a.offsets.push_back(offset);
 						res.push_back(a);
@@ -405,7 +405,7 @@ void BPlusTree::getResult(string dbName,string name,int start,int end,IndexInfo 
 						/*²éÕÒÈÝÆ÷ÖÐÊÇ·ñ´æÔÚ¿éºÅ*/
 						int find=0;
 						for(unsigned int k=0;k<res.size();k++){
-							if(getBlockNum(newInfo.substr(0,BBIT))==res[k].blocknum){
+							if(getBlockNum(newInfo.substr(0,BBIT))==res[k].blockNum){
 								int offset=getOffset(newInfo.substr(BBIT,OBIT));
 								res[k].offsets.push_back(offset);
 								find=1;
@@ -415,7 +415,7 @@ void BPlusTree::getResult(string dbName,string name,int start,int end,IndexInfo 
 						/*Èç¹û²»´æÔÚ£¬ÔòÔÙÈÝÆ÷×îºó¼ÓÈëÒ»¸öresult£¬ËüÓÐ¿éºÅºÍÒ»¸öÆ«ÒÆÁ¿*/
 						if(find==0){
 							Result a;
-							a.blocknum=getBlockNum(newInfo.substr(0,BBIT));
+							a.blockNum=getBlockNum(newInfo.substr(0,BBIT));
 							int offset=getOffset(newInfo.substr(BBIT,OBIT));
 							a.offsets.push_back(offset);
 							res.push_back(a);
@@ -425,7 +425,7 @@ void BPlusTree::getResult(string dbName,string name,int start,int end,IndexInfo 
 					else{
 						int find=0;
 						for(unsigned int k=0;k<res.size();k++){
-							if(getBlockNum(newInfo.substr(0,BBIT))==res[k].blocknum){
+							if(getBlockNum(newInfo.substr(0,BBIT))==res[k].blockNum){
 								int offset=getOffset(newInfo.substr(BBIT,OBIT));
 								res[k].offsets.push_back(offset);
 								find=1;
@@ -435,7 +435,7 @@ void BPlusTree::getResult(string dbName,string name,int start,int end,IndexInfo 
 						/*Èç¹û²»´æÔÚ£¬ÔòÔÙÈÝÆ÷×îºó¼ÓÈëÒ»¸öresult£¬ËüÓÐ¿éºÅºÍÒ»¸öÆ«ÒÆÁ¿*/
 						if(find==0){
 							Result a;
-							a.blocknum=getBlockNum(newInfo.substr(0,BBIT));
+							a.blockNum=getBlockNum(newInfo.substr(0,BBIT));
 							int offset=getOffset(newInfo.substr(BBIT,OBIT));
 							a.offsets.push_back(offset);
 							res.push_back(a);
@@ -456,7 +456,7 @@ void BPlusTree::getResult(string dbName,string name,int start,int end,IndexInfo 
 					/*¿éºÅÊÇ·ñÔÚÈÝÆ÷ÖÐ*/
 					int find=0;
 					for(unsigned int k=0;k<res.size();k++){
-						if(getBlockNum(newInfo.substr(0,BBIT))==res[k].blocknum){
+						if(getBlockNum(newInfo.substr(0,BBIT))==res[k].blockNum){
 							int offset=getOffset(newInfo.substr(BBIT,OBIT));
 							res[k].offsets.push_back(offset);
 							find=1;
@@ -465,7 +465,7 @@ void BPlusTree::getResult(string dbName,string name,int start,int end,IndexInfo 
 					}
 					if(find==0){
 						Result a;
-						a.blocknum=getBlockNum(newInfo.substr(0,BBIT));
+						a.blockNum=getBlockNum(newInfo.substr(0,BBIT));
 						int offset=getOffset(newInfo.substr(BBIT,OBIT));
 						a.offsets.push_back(offset);
 						res.push_back(a);
@@ -477,7 +477,7 @@ void BPlusTree::getResult(string dbName,string name,int start,int end,IndexInfo 
 	}//end of for
 
 }
-int BPlusTree::searchLeaf(string dbName, IndexInfo  inform){
+int BPlusTree::searchLeaf(string dbName, IndexInfo & inform){
 	const string name=inform.tableName+"_"+inform.attrName+"_"+inform.name;
 	BlockInfo* root=getBlock(dbName,name,0,1);
 	BlockInfo* Node;
@@ -531,6 +531,11 @@ int BPlusTree::searchLeaf(string dbName, IndexInfo  inform){
 		if(info[0]=='!')
 			return Node->blockNum;
 		return -1;
+}
+void BPlusTree::insertIndex(string dbName, vector<IndexInfo> inform){
+	for(int i=0;i<inform.size();i++)
+		insertOne(dbName,inform[i]);
+
 }
 void BPlusTree::insertOne(string dbName,IndexInfo  inform){
 	const string name=inform.tableName+"_"+inform.attrName+"_"+inform.name;
@@ -678,7 +683,7 @@ void BPlusTree::insertInParent(string dbName,IndexInfo inform,int Node,string K1
 		R->blockNum=Node;
 		node->blockNum=r;
 		write(R,info);
-		writeRootBlock(dbName,name,R);
+		write(node,node->cBlock);
 		return;
 	}
 	else{
@@ -752,10 +757,14 @@ void BPlusTree::insertInParent(string dbName,IndexInfo inform,int Node,string K1
 		}
 	}
 }
-void BPlusTree::deleteOne(string database,IndexInfo  inform){
+void BPlusTree::deleteIndex(string dbName,vector<IndexInfo> inform){
+	for(int i=0;i<inform.size();i++)
+		deleteOne(dbName,inform[i]);
+}
+void BPlusTree::deleteOne(string dbName,IndexInfo inform){
 	const string name=inform.tableName+"_"+inform.attrName+"_"+inform.name;
-	int L=searchLeaf(database,inform);
-	deleteEntry(database,inform,L,inform.value,L);
+	int L=searchLeaf(dbName,inform);
+	deleteEntry(dbName,inform,L,inform.value,L);
 }
 void BPlusTree::deleteEntry(string dbName,IndexInfo inform,int n,string K,int nod){
 	const string name=inform.tableName+"_"+inform.attrName+"_"+inform.name;
@@ -824,7 +833,7 @@ void BPlusTree::deleteEntry(string dbName,IndexInfo inform,int n,string K,int no
 		/*½»»»¿éºÅ*/
 		Node->blockNum=Child->blockNum;
 		Child->blockNum=0;
-		writeRootBlock(dbName,name,Child);
+		write(Child,Child->cBlock);
 		/*delete N*/
 		deleteBlock(dbName,name,Node);
 	}
@@ -1216,76 +1225,8 @@ string BPlusTree::toLength(IndexInfo inform)/*½«informÖÐµÄvalueÎ»ÍØÕ¹µ½½ÚµãÖÐÏàÓ
 				value="0"+value;
 
 	}
-
-
 	return value;
 }
-int BPlusTree::findPrevLeafSibling(string dbName,IndexInfo inform, int nodenum){
-	const string name=inform.tableName+"_"+inform.attrName+"_"+inform.name;
-	int left=findLeftestChild(dbName,inform);
-	/*Ã»ÓÐÇ°Ò»¸öÒ¶×Ó½Úµã*/
-	if(left==nodenum)
-		return -1;
-	BlockInfo* Left=getBlock(dbName,name,left,1);
-	/*¶Áµ½Òì³£¿é*/
-	if(Left==NULL)
-		return -1;
-	string info=Left->cBlock;
-	while(info.substr(Left->charNum-3,3)!=intToStr(nodenum,3)){
-		left=getBlockNum(info.substr(Left->charNum-3,3));
-		Left=getBlock(dbName,name,left,1);
-		if(Left==NULL)
-			return -1;
-		info=Left->cBlock;
-	}
-	return left;
-}
-int BPlusTree::findNextLeafSibling(string dbName, IndexInfo inform,int nodenum){
-	const string name=inform.tableName+"_"+inform.attrName+"_"+inform.name;
-	BlockInfo* node=getBlock(dbName,name,nodenum,1);
-	/*¶Áµ½Òì³£¿é*/
-	if(node==NULL)
-		return -1;
-	string info=node->cBlock;
-	/*Ã»ÓÐÏÂÒ»¸ö½Úµã*/
-	if(info[node->charNum-1]=='#')
-		return 0;
-	int start=node->charNum-3;
-	string next=info.substr(start,3);
-	int Next=getBlockNum(next);
-	return Next;
-}
-int BPlusTree::findLeftestChild (string dbName,IndexInfo inform){
-	const string name=inform.tableName+"_"+inform.attrName+"_"+inform.name;
-	BlockInfo* root=getBlock(dbName,name,0,1);
-	string left;
-	BlockInfo* node=root;
-	string info=node->cBlock;
-	while(info[0]=='?')
-	{
-		left=info.substr(5,3);
-		node=getBlock(dbName,name,getBlockNum(left),1);
-		info=node->cBlock;
-	}
-	return getBlockNum(left);
-}
-
-void BPlusTree::write(BlockInfo* b,string s){
-	b->cBlock=new char[s.size()+1];
-	strcpy(b->cBlock,s.c_str());
-	b->charNum=strlen(b->cBlock);
-	b->dirtyBit=1;
-}
-
-BPlusTree::BPlusTree():LENGTH_OF_INT(5),LENGTH_OF_FLOAT(10),LENGTH_OF_CHAR(10),N(3),leaf_least(ceil((N-1)/2.0)),nonleaf_least(ceil(N/2.0)-1),VBIT(4),BBIT(3),OBIT(4),LBIT(7){
-
-}
-void BPlusTree::setN(int n){
-	N=n;
-	leaf_least=ceil((N-1)/2.0);
-	nonleaf_least=ceil(N/2.0)-1;
-}
-
 int BPlusTree::findFather(string dbName,IndexInfo inform,int num){
 	const string name=inform.tableName+"_"+inform.attrName+"_"+inform.name;
 	int length;
@@ -1346,6 +1287,71 @@ int BPlusTree::findFather(string dbName,IndexInfo inform,int num){
 	}//end of while
 	return father;
 }
+int BPlusTree::findPrevLeafSibling(string dbName,IndexInfo inform, int nodenum){
+	const string name=inform.tableName+"_"+inform.attrName+"_"+inform.name;
+	int left=findLeftestChild(dbName,inform);
+	/*Ã»ÓÐÇ°Ò»¸öÒ¶×Ó½Úµã*/
+	if(left==nodenum)
+		return -1;
+	BlockInfo* Left=getBlock(dbName,name,left,1);
+	/*¶Áµ½Òì³£¿é*/
+	if(Left==NULL)
+		return -1;
+	string info=Left->cBlock;
+	while(info.substr(Left->charNum-3,3)!=intToStr(nodenum,3)){
+		left=getBlockNum(info.substr(Left->charNum-3,3));
+		Left=getBlock(dbName,name,left,1);
+		if(Left==NULL)
+			return -1;
+		info=Left->cBlock;
+	}
+	return left;
+}
+int BPlusTree::findNextLeafSibling(string dbName, IndexInfo inform,int nodenum){
+	const string name=inform.tableName+"_"+inform.attrName+"_"+inform.name;
+	BlockInfo* node=getBlock(dbName,name,nodenum,1);
+	/*¶Áµ½Òì³£¿é*/
+	if(node==NULL)
+		return -1;
+	string info=node->cBlock;
+	/*Ã»ÓÐÏÂÒ»¸ö½Úµã*/
+	if(info[node->charNum-1]=='#')
+		return 0;
+	int start=node->charNum-3;
+	string next=info.substr(start,3);
+	int Next=getBlockNum(next);
+	return Next;
+}
+int BPlusTree::findLeftestChild (string dbName,IndexInfo inform){
+	const string name=inform.tableName+"_"+inform.attrName+"_"+inform.name;
+	BlockInfo* root=getBlock(dbName,name,0,1);
+	string left;
+	BlockInfo* node=root;
+	string info=node->cBlock;
+	while(info[0]=='?')
+	{
+		left=info.substr(5,3);
+		node=getBlock(dbName,name,getBlockNum(left),1);
+		info=node->cBlock;
+	}
+	return getBlockNum(left);
+}
+void BPlusTree::write(BlockInfo* b,string s){
+	b->cBlock=new char[s.size()+1];
+	strcpy(b->cBlock,s.c_str());
+	b->charNum=strlen(b->cBlock);
+	b->dirtyBit=1;
+}
+
+BPlusTree::BPlusTree():LENGTH_OF_INT(5),LENGTH_OF_FLOAT(10),LENGTH_OF_CHAR(10),N(3),leaf_least(ceil((N-1)/2.0)),nonleaf_least(ceil(N/2.0)-1),VBIT(4),BBIT(3),OBIT(4),LBIT(7){
+
+}
+void BPlusTree::setN(int n){
+	N=n;
+	leaf_least=ceil((N-1)/2.0);
+	nonleaf_least=ceil(N/2.0)-1;
+}
+
 
 
 

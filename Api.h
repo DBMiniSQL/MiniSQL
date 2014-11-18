@@ -16,18 +16,20 @@ class Api{
 public:
 	Api(){}
 	virtual ~Api()
-	static bool createDatabase(string dbName);
-	static bool dropDatabase(string dbName);
-	static bool useDatabase(string dbName);
-	static bool createTable(TableInfo& table);
-	static bool dropTable(TableInfo& table);
-	static bool createIndex(Index& index);
-	static bool dropIndex(Index& index);
-	static bool selectRecord(string tableName,vector<string>& columns,vector<Condition>& conds);
-	static bool insertRecord(string tableName,vector<string>& values);
-	static bool deleteRecord(string tableName);
-	static bool quit();
-	// static void execfile(string fileName);
+	void createDatabase(string dbName);
+	void dropDatabase(string dbName);
+	void useDatabase(string dbName);
+	void createTable(TableInfo& table);
+	void dropTable(TableInfo& table);
+	void createIndex(Index& index);
+ 	void dropIndex(Index& index);
+	void selectRecord(string tableName,vector<string>& columns,vector<Condition>& conds);
+	void insertRecord(string tableName,vector<string>& values);
+	void deleteRecord(string tableName);
+	void deleteRecord(string tableName,vector<Condition>& conds);
+
+	void quit();
+	//  void execfile(string fileName);
 };
 
 #endif

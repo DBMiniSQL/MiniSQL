@@ -1,92 +1,150 @@
 /*
- * IndexManager.h
+ * Index_Manager.h
  *
  *  Created on: 2014年10月31日
  *      Author: Chong Xiaoya
- *
- *两个结构体需要修改！
- *
  */
-
 
 #ifndef INDEX_MANAGER_H_
 #define INDEX_MANAGER_H_
 
-#include "Definition.h"
-#include "BlockInfo.h"
-#include "FileInfo.h"
-
-#include "Buffer.h"
-#include "Record.h"
-
+#include<iostream>
+#include<CString>
+#include<vector>
+//#include "Definition.h"
+//#include "BlockInfo.h"
+//#include "FileInfo.h"
+#define BLOCKSIZE 4096
 using namespace std;
-
+#define LT 100
+#define LE 101
+#define GT 102
+#define GE 103
+#define EQ 104
+#define INT 201
+#define CHAR 202
+#define FLOAT 203
 struct BlockInfo;
+class FileInfo{
+public:
+	int type;					//0 for Data File
+	//1 for Index File
+	string fileName;			//the name of the file
+	int recordAmount;			//the number of the record in th file
+	int freeNum;				//the free block number which could be used for the file
+	FileInfo* next;				//the pointer points to the next file
+	BlockInfo* firstBlock;		//point to the first blcok within the file
 
-
-struct FileInfo
-{
-	int type;					// 0-> data file
-								// 1 -> index file
-	string fileName;			// the name of the file
-	int recordAmount;			// the number of record in the file
-    int freeNum;                // the free block number which could be used for the file
-	int recordLength;			// the length of the record in the file
-	FileInfo *next;				// the pointer points to the next file
-	BlockInfo *firstBlock;		// point to the first block within the file
+	FileInfo();
+	FileInfo(int fileType, string name){
+		type = fileType;
+		fileName = name;
+		recordAmount = 0;
+		freeNum = 0;
+		next = NULL;
+		firstBlock = NULL;
+	}
+	~FileInfo();
 };
 
-struct BlockInfo
-{
-	int blockNum;				// the block number of the block, which indicate it when it be newed
-	bool dirtyBit;				// 0 -> flase
-								// 1 -> indicate dirty, write back
-	BlockInfo *next;			// the pointer point to next block
-	FileInfo *file;				// the pointer point to the file, which the block belongs to
-	int charNum;				// the number of chars in the block
-	char *cBlock;				// the array space for storing the records in the block in buffer
-	int iTime;					// it indicate the age of the block in use
-	int lock;					// prevent the block from replacing
-};
-// 所读取块的信息
-class IndexInfo
+class BlockInfo
 {
 public:
-	string name;        //索引名
-	string tableName;  //表名
-	string attrName;  //属性名
-	int length;                //the length of the value
-	int type;                 //the type of the value
-                               //0---int,1---float,2----char(n)
-	long offset;               //the record offset in the table file
 	int blockNum;
-	string value;             //the value
+	bool dirtyBit;
+	BlockInfo* next;
+	FileInfo* file;
+	int charNum;
+	char* cBlock;
+	int iTime;
+	int lock;
+	int father;
+	bool isFull;
+
+	BlockInfo(){
+		blockNum = -1;
+		dirtyBit = 0;
+		next = NULL;
+		file = NULL;
+		charNum = 0;
+		cBlock = new char[BLOCKSIZE];
+		father = -1;
+		iTime = 0;
+		lock = 0;
+		isFull = 0;
+	}
+	~BlockInfo(){
+		delete[] cBlock;
+	}
+	void clearBlock(){
+		blockNum = -1;
+		dirtyBit = 0;
+		next = NULL;
+		file = NULL;
+		charNum = 0;
+		delete[] cBlock;
+		cBlock = new char[BLOCKSIZE];
+		father = -1;
+		iTime = 0;
+		lock = 0;
+		isFull = 0;
+	}
 };
+
+// 所读取块的信息
+class Index 			//存在catalog里面
+{
+public:
+	string name;		//Interpreter中为index_name
+	string tableName;	//Interpreter中为Table_name
+	string attrName;	//Interpreter中为column_name
+	int column;			//在哪条属性上建立了索引
+	Index():name(""),tableName(""){};
+	~Index(){};
+	void debug(){
+		cout << name << " " << tableName << " " << attrName << endl;
+	}
+};
+class IndexInfo : public Index //B+TreeNode
+{
+public:
+	int blockNum;
+	int offset;
+	int type;
+	int length;
+	string value;
+	IndexInfo() :blockNum(-1), offset(-1){};
+	~IndexInfo(){};
+};
+
 class Condition
 {
 public:
 	int op;
-	int columNum;
-	string columName;
+	int columnNum;						//这是什么?
+	string columname;
 	string value;
+	void debug(){
+		cout << columname << " " << op << " " << value << endl;
+	}
 };
+
 class Result
 {
 public:
-	int blocknum;
+	int blockNum;
 	vector<int> offsets;
+	Result() :blockNum(-1){};
+	~Result(){};
 };
-/*调用buffer的四个函数
+/*调用buffer的函数，共三个：
+void deleteBlock(string dbName,string name,BlockInfo* tempBlock);
 BlockInfo* getEmptyBlock(string dbName,string name);
 BlockInfo* getBlock(string dbName, string name,int blockNum, int type);
-void deleteBlock(string dbName,string name,BlockInfo* tempBlock);
-void writeRootBlock(string dbName,string name,BlockInfo* tempBlock);
 */
-
 class BPlusTree
 {
 private:
-
 	const int LENGTH_OF_INT;
 	const int LENGTH_OF_FLOAT;
 	int LENGTH_OF_CHAR;
@@ -97,7 +155,7 @@ private:
 	const int BBIT;//每个节点中孩子的块号用3位的string表示
 	const int OBIT;//叶子节点的记录在块中的偏移量用4位的string表示
 	const int LBIT;//叶子节点的块号+偏移量的位数
-	int searchLeaf(string dbName, IndexInfo inform);
+	int searchLeaf(string dbName, IndexInfo & inform);
 	void write(BlockInfo* b,string s);
 	string findLinfo(string dbName,IndexInfo inform,int nodenum,int type);
 	int compareInt(string int1,string int2);//将连个表示int的字符串进行大小比较
@@ -119,13 +177,15 @@ private:
 	void getResult(string dbname,string name,int start,int end,IndexInfo inform,string Linfo,int type,vector<Result>& res);
 	void searchOne(string dbName,IndexInfo inform,vector<Result>& res);
 	void searchMany(string dbName,int type,IndexInfo inform,vector<Result>& res) ;
-	BPlusTree();
-public:
-	/*inform需包含所有IndexInfo属性，con为一个条件（不包括不等于），res为一个空的容器*/
-	void search(string dbName,IndexInfo inform,Condition con,vector<Result>& res);
-	/*inform需包含IndexInfo所有属性，除了blocknum和offset，如果是char需告知length*/
 	void insertOne(string dbName, IndexInfo inform);
-	/*inform需包含所有IndexInfo属性，除了blocknum和offset，如果是char需告知length*/
 	void deleteOne(string dbName,IndexInfo inform);
+public:
+	BPlusTree();
+	/*inform 需提供除blockNum,offset的所有参数*/
+	void searchIndex(string dbName,IndexInfo inform,Condition con,vector<Result>& res);
+	/*inform 需提供除所有参数*/
+	void insertIndex(string dbName, vector<IndexInfo> inform);
+	/*inform 需提供除blockNum,offset的所有参数*/
+	void deleteIndex(string dbName,vector<IndexInfo> inform);
 };
 #endif /* INDEX_MANAGER_H_ */

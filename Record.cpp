@@ -174,7 +174,10 @@ void select(TableInfo table, Data dataIn, Data &dataOut, vector<string>& columns
 		for (int eveCond = 0; eveCond < conds.size(); ++eveCond)
 			for (i = 0; i < dataIn.records.size(); ++i)
 			{
-				bool isSatisfy = compare(conds[eveCond].value, dataIn.records[i].columns[conds[eveCond].columnNum], table.attributes[conds[eveCond].columnNum].tpye, conds[eveCond].op);
+				int k = 0;
+				while(table.attributes[k].name != conds[eveCond].columnname)
+					k++;
+				bool isSatisfy = compare(conds[eveCond].value, dataIn.records[i].columns[k], table.attributes[k].tpye, conds[eveCond].op);
 				if(!isSatisfy)
 					dataIn.records.erase(dataIn.records.begin()+i);
 			}
@@ -186,7 +189,10 @@ void select(TableInfo table, Data dataIn, Data &dataOut, vector<string>& columns
 		{
 			for (i = 0; i < dataIn.records.size(); ++i)
 			{
-				bool isSatisfy = compare(conds[eveCond].value, dataIn.records[i].columns[conds[eveCond].columnNum], table.attributes[conds[eveCond].columnNum].tpye, conds[eveCond].op);
+				int k = 0;
+				while(table.attributes[k].name != conds[eveCond].columnname)
+					k++;
+				bool isSatisfy = compare(conds[eveCond].value, dataIn.records[i].columns[k], table.attributes[k].tpye, conds[eveCond].op);
 				if(!isSatisfy)
 					dataIn.records.erase(dataIn.records.begin()+i);
 			}
@@ -224,9 +230,9 @@ void coutPrint(vector<string>& columns, Data& dataOut)
 }
 
 //包含生成index模块所需info容器
-void insertRecord(string DB_Name, TableInfo table, Data insertedValues, int& record_Num, vector<Index> existIndex, multiIndex& indexValues)
+void insertRecord(string DB_Name, TableInfo table, Data insertedValues, vector<Index> existIndex, vector<IndexInfo>& indexValues)
 {
-	record_Num = insertedValues.records.size();
+	int record_Num = insertedValues.records.size();
 	char* stringValues;
 	for (int i = 0; i < insertedValues.records.size(); ++i)
 	{
@@ -248,7 +254,6 @@ void insertRecord(string DB_Name, TableInfo table, Data insertedValues, int& rec
 		newBlock->dirtyBit = true;
 		//indexInfo容器
 		int oriOffset = newBlock->charNum / table.totalLength;	//indexInfo
-		singleIndex eveIndex[existIndex.size()];
 		for (int i = 0; i < record_Num; ++i)
 		{
 			int avaIndexNum = 0;
@@ -268,13 +273,11 @@ void insertRecord(string DB_Name, TableInfo table, Data insertedValues, int& rec
 					char tmpValue[table.attributes[j].length];
 					memcpy(tmpValue, tmpBlock, table.attributes[j].length);
 					tmpIndex.value = tmpValue;
-					singleIndex[avaIndexNum].push_back(tmpIndex);
+					indexValues.push_back(tmpIndex);
 				}
 				tmpBlock += table.attributes[j].length;
 			}
 		}
-		for (i = 0; i < existIndex.size(); ++i)
-			indexValues.indexes.push_back(eveIndex[i]);
 	}
 	else
 	{
@@ -282,7 +285,6 @@ void insertRecord(string DB_Name, TableInfo table, Data insertedValues, int& rec
 		int initSize = tableLength - newBlock->charNum;
 		char* tmpBlock;
 		int oriOffset, insertNum;
-		singleIndex eveIndex[existIndex.size()];
 		for (int i = 0; i < blockAmount; ++i)
 		{
 			if (i == 0)
@@ -322,7 +324,7 @@ void insertRecord(string DB_Name, TableInfo table, Data insertedValues, int& rec
 						char tmpValue[table.attributes[j].length];
 						memcpy(tmpValue, tmpBlock, table.attributes[j].length);
 						tmpIndex.value = tmpValue;
-						singleIndex[avaIndexNum].push_back(tmpIndex);
+						indexValues.push_back(tmpIndex);
 					}
 					tmpBlock += table.attributes[j].length;
 				}
@@ -357,13 +359,11 @@ void insertRecord(string DB_Name, TableInfo table, Data insertedValues, int& rec
 					char tmpValue[table.attributes[j].length];
 					memcpy(tmpValue, tmpBlock, table.attributes[j].length);
 					tmpIndex.value = tmpValue;
-					singleIndex[avaIndexNum].push_back(tmpIndex);
+					indexValues.push_back(tmpIndex);
 				}
 				tmpBlock += table.attributes[j].length;
 			}
 		}
-		for (i = 0; i < existIndex.size(); ++i)
-			indexValues.indexes.push_back(eveIndex[i]);
 	}
 }
 
@@ -414,13 +414,13 @@ void selectRecord(string DB_Name, vector<string>& columns, TableInfo table, vect
 }
 
 //没索引的delete
-void deletRecord(string DB_Name, TableInfo table, vector<Condition>& conds, int& affectedNum)
+void deletRecord(string DB_Name, TableInfo table, vector<Condition>& conds)
 {
 	Data dataIn, selectedData;
 	vector<string> noColumns;
 	getData(DB_Name, table, &dataIn);
 	select(table, dataIn, &selectedData, &noColumns, conds);
-	affectedNum = selectedData.records.size();
+	int affectedNum = selectedData.records.size();
 	for (int i = 0; i < affectedNum; ++i)
 	{
 		BlockInfo* block = bufferManager.getBlock(DB_Name, table.name, selectedData.records[i].blockNum, DATAFILE);
@@ -441,13 +441,13 @@ void printSelectedRecord(string DB_Name, vector<string>& columns, TableInfo tabl
 }
 
 //有索引的delete
-void deleteIndexRecord(string DB_Name, TableInfo table, vector<Condition>& conds, vector<Result> results, int& affectedNum)
+void deleteIndexRecord(string DB_Name, TableInfo table, vector<Condition>& conds, vector<Result> results, vector<Index> existIndex, vector<IndexInfo>& indexValues)
 {
 	Data dataIn, selectedData;
 	vector<string> noColumns;
 	getIndexData(DB_Name, table, results, &dataIn);
 	select(table, dataIn, &selectedData, &noColumns, conds);
-	affectedNum = selectedData.records.size();
+	int affectedNum = selectedData.records.size();
 	for (int i = 0; i < affectedNum; ++i)
 	{
 		BlockInfo* block = bufferManager.getBlock(DB_Name, table.name, selectedData.records[i].blockNum, DATAFILE);
@@ -455,5 +455,23 @@ void deleteIndexRecord(string DB_Name, TableInfo table, vector<Condition>& conds
 		memset(empRec, '0', table.totalLength);
 		memmove(cBlock+table.totalLength*selectedData.records[i].offset, empRec, table.totalLength);
 		block->dirtyBit = true;
+	}
+	for (int i = 0; i < selectedData.records.size(); ++i)
+	{
+		int avaIndex = 0;
+		for (int j = 0; j < table.attrNum; ++j)
+		{
+			if (table.attributes[j].indexName == existIndex[avaIndex])
+			{
+				IndexInfo tmpIndex;
+				tmpIndex.name = existIndex[avaIndex];
+				tmpIndex.tableName = table.name;
+				tmpIndex.attrName = table.attributes[j].name;
+				tmpIndex.type = table.attributes[j].type;
+				tmpIndex.length = table.attributes[j].length;
+				tmpIndex.value = selectedData.records[i].columns[j];
+				indexValues.push_back(tmpIndex);
+			}
+		}
 	}
 }
