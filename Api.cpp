@@ -44,6 +44,3 @@ bool Api::deleteRecord(string tableName,vector<Condition>& conds){
 bool Api::quit(){
 	return quitProc()
 }
-
-// bool Api::execfile(string fileName){
-// }
