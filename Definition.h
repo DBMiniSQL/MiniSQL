@@ -61,29 +61,18 @@ class TableInfo
 public:
 	string name;
 	int attrNum;	//表中含有的属性数
-	//int blockNum;
 	int totalLength;	//值为sum(attributes[i].length)
 	vector<AttrInfo> attributes;
-<<<<<<< HEAD
-	//TableInfo():attrNum(0), blockNum(-1), totalLength(0){};
 	TableInfo():attrNum(0),totalLength(0){};
 	~TableInfo(){};
 };
 
 class Index //存在catalog里面
-=======
-	TableInfo():attrNum(0), blockNum(0), totalLength(0){};
-};
-
-class IndexInfo
->>>>>>> origin/master
 {
 public:
 	string name;
 	string tableName;
 	string attrName;
-	//int blockNum;
-	//IndexInfo():blockNum(-1){};
 	Index(){};
 	~Index(){};
 };
@@ -92,15 +81,11 @@ class IndexInfo: class Index //B+TreeNode
 {
 public:
 	int blockNum;
-<<<<<<< HEAD
 	int offset;
 	int type;
 	int length;
 	string value;
 	IndexInfo():blockNum(-1),offset(-1){};
-=======
-	IndexInfo():blockNum(0){};
->>>>>>> origin/master
 	~IndexInfo(){};
 };
 
@@ -110,23 +95,12 @@ public:
 	int blockNum;
 	bool dirtyBit;
 	BlockInfo* next;
-<<<<<<< HEAD
-	fileInfo* file;
-	int charNum;	//initial to be 0
-=======
 	FileInfo* file;
 	int charNum;
->>>>>>> origin/master
 	char* cBlock;
 	int iTime;
 	int lock;
 	int father;
-<<<<<<< HEAD
-	bool isFull;	//initial to be false
-	BlockInfo();
-	~BlockInfo();
-	void clearBlock();
-=======
 	bool isFull;
 	BlockInfo(){
 		blockNum = -1;
@@ -156,7 +130,6 @@ public:
 		lock = 0;
 		isFull = 0;
 	}
->>>>>>> origin/master
 };
 
 class FileInfo{
@@ -166,12 +139,6 @@ public:
 	string fileName;			//the name of the file
 	int recordAmount;			//the number of the record in th file
 	int freeNum;				//the free block number which could be used for the file
-<<<<<<< HEAD
-	fileInfo* next;				//the pointer points to the next file
-	BlockInfo* firstBlock;		//point to the first blcok within the file
-	fileInfo();
-	~fileInfo();
-=======
 	FileInfo* next;				//the pointer points to the next file
 	BlockInfo* firstBlock;		//point to the first blcok within the file
 	FileInfo();
@@ -184,7 +151,6 @@ public:
 		firstBlock = NULL;
 	}
 	~FileInfo();
->>>>>>> origin/master
 };
 
 //stants for less than, less equal, greater than, greater equal, equal, not equal respectivly
