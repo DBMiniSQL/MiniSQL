@@ -42,63 +42,15 @@ public:
 	bool dropDatabase(string DB_Name);
 	bool dropTable(string Table_Name,string DB_Name);
 	bool dropIndex(string Index_Name,string DB_Name);
-	bool existDB(string DB_Name)
-	{
-		const string filename = DB_Name + "_table.catalog";
-		fstream file(filename.c_str(), ios::in);
-		if(!file)
-			return false;
-		file.close();
-
-		return true;
-	}
-	bool existTable(string Table_Name, string DB_Name)
-	{
-		if(DB_Name != dbName)
-			useDatabase(DB_Name);
-		for(int i = 0; i < tableNum; i++)
-			if(tables[i].name == Table_Name)
-				return true;
-
-		return false;
-	}
-	bool existAttr(string Attr_Name, string Table_Name, string DB_Name)
-	{
-		if(DB_Name != dbName)
-			useDatabase(DB_Name);
-		for(int i = 0; i < tableNum; i++)
-			if(tables[i].name == Table_Name)
-				for (int j = 0; j < tables[i].attrNum; j++)
-					if(tables[i].attributes[j].name == Attr_Name)
-						return true;
-	}
-	bool existIndex(string Index_Name, string DB_Name)
-	{
-		if(DB_Name != dbName)
-			useDatabase(DB_Name);
-		for(int i = 0; i < indexNum; i++)
-			if(indexes[i].name == Index_Name)
-				return true;
-
-		return false;
-	}
-	bool existIndex(string Table_Name, string Attr_Name, string DB_Name)
-	{
-		if(DB_Name != dbName)
-			useDatabase(DB_Name);
-		for(int i = 0; i < tableNum; i++)
-			if(tables[i].name == Table_Name)
-				for(int j = 0; j < tables[i].attrNum; j++)
-					if(tables[i].attributes[j].name == Attr_Name)
-						return true;
-
-		return false;
-	}
-	TableInfo getTableInfo(string DB_Name, string Table_Name);
-	Index getIndexInfo(string DB_Name, string Index_Name);
-	Index getIndexInfo(string DB_Name, string Table_Name, string Attr_Name);
-	////To be continued
-	bool getAllIndex(string DB_Name, string Table_Name, vectror<Index>& allIndex);
+	bool existDB(string DB_Name);
+	bool existTable(string Table_Name, string DB_Name);
+	bool existAttr(string Attr_Name, string Table_Name, string DB_Name);
+	bool existIndex(string Index_Name, string DB_Name);
+	bool existIndex(string Table_Name, string Attr_Name, string DB_Name);
+	bool getTableInfo(string DB_Name, string Table_Name, TableInfo& table);
+	bool getIndexInfo(string DB_Name, string Index_Name, Index& index);
+	bool getIndexInfo(string DB_Name, string Table_Name, string Attr_Name, Index& index);
+	bool getAllIndex(string DB_Name, string Table_Name, vector<Index>& existIndex);
 	void useDatabase(string DB_Name)
 	{
 		if(dbName.empty())
@@ -107,6 +59,63 @@ public:
 		initialCatalog();
 	};
 };
+
+bool CatalogManager::existDB(string DB_Name)
+{
+	const string filename = DB_Name + "_table.catalog";
+	fstream file(filename.c_str(), ios::in);
+	if(!file)
+		return false;
+	file.close();
+
+	return true;
+}
+
+bool CatalogManager::existTable(string Table_Name, string DB_Name)
+{
+	if(DB_Name != dbName)
+		useDatabase(DB_Name);
+	for(int i = 0; i < tableNum; i++)
+		if(tables[i].name == Table_Name)
+			return true;
+
+	return false;
+}
+
+bool  CatalogManager::existAttr(string Attr_Name, string Table_Name, string DB_Name)
+{
+	if(DB_Name != dbName)
+		useDatabase(DB_Name);
+	for(int i = 0; i < tableNum; i++)
+		if(tables[i].name == Table_Name)
+			for (int j = 0; j < tables[i].attrNum; j++)
+				if(tables[i].attributes[j].name == Attr_Name)
+					return true;
+}
+
+bool  CatalogManager::existIndex(string Index_Name, string DB_Name)
+{
+	if(DB_Name != dbName)
+		useDatabase(DB_Name);
+	for(int i = 0; i < indexNum; i++)
+		if(indexes[i].name == Index_Name)
+			return true;
+
+	return false;
+}
+
+bool  CatalogManager::existIndex(string Table_Name, string Attr_Name, string DB_Name)
+{
+	if(DB_Name != dbName)
+		useDatabase(DB_Name);
+	for(int i = 0; i < tableNum; i++)
+		if(tables[i].name == Table_Name)
+			for(int j = 0; j < tables[i].attrNum; j++)
+				if(tables[i].attributes[j].name == Attr_Name)
+					return true;
+
+	return false;
+}
 
 bool CatalogManager::initialCatalog()
 {
@@ -327,37 +336,64 @@ bool CatalogManager::dropIndex(string Index_Name,string DB_Name)
 	return false;
 }
 
-TableInfo CatalogManager::getTableInfo(string DB_Name, string Table_Name)
+bool CatalogManager::getTableInfo(string DB_Name, string Table_Name, TableInfo& table)
 {
 	if(DB_Name != dbName)
 		useDatabase(DB_Name);
 	for(int i = 0; i < tableNum; i++)
 	{
 		if(tables[i].name == Table_Name)
-			return tables[i];
+		{
+			table = tables[i];
+			return true;
+		}
 	}
+
+	return false;
 }
 
-Index CatalogManager::getIndexInfo(string DB_Name, string Index_Name)
+bool CatalogManager::getIndexInfo(string DB_Name, string Index_Name, Index& index)
 {
 	if(DB_Name != dbName)
 		useDatabase(DB_Name);
 	for(int i = 0; i < indexNum; i++)
 	{
 		if(indexes[i].name == Index_Name)
-			return indexes[i];
+		{	
+			index = indexes[i]
+			return true;
+		}
 	}
+
+	return false;
 }
 
-Index CatalogManager::getIndexInfo(string DB_Name, string Table_Name, string Attr_Name)
+bool CatalogManager::getIndexInfo(string DB_Name, string Table_Name, string Attr_Name, Index& index)
 {
 	if(DB_Name != dbName)
 		useDatabase(DB_Name);
 	for(int i = 0; i < indexNum; i++)
 	{
 		if(indexes[i].tableName == Table_Name && indexes[i].attrName == Attr_Name)
-			return indexes[i];
+		{	
+			index = indexes[i]
+			return true;
+		}
 	}
+	
+	return false;
 }
 
+bool CatalogManager::getAllIndex(string DB_Name, string Table_Name, vector<Index>& existIndex)
+{
+	if(DB_Name != dbName)
+		useDatabase(DB_Name);
+	for (int i = 0; i < indexNum; ++i)
+	{
+		if(indexes[i].tableName == Table_Name)
+			existIndex.push_back(indexes[i]);
+	}
+
+	return (existIndex.size() != 0);
+}
 #endif

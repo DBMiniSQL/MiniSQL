@@ -22,7 +22,7 @@ bool compare(string s1, string s2, int type, int condType);
 void getData(string DB_Name, TableInfo table, Data& data);
 void getIndexData(string DB_Name, TableInfo table,vector<Result> results, Data& data);
 //包含生成index模块所需info容器
-void insertRecord(string DB_Name, TableInfo table, Data insertedValues, int& record_Num, vector<IndexInfo>& indexValues);
+void insertRecord(string DB_Name, TableInfo table, Data insertedValues, int& record_Num, multiIndex& indexValues);
 //初始化
 void initialIndex(string DB_Name, TableInfo table, string Attr_Name, vector<IndexInfo>& indexValues);
 //没索引的select

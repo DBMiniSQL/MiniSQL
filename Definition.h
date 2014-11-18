@@ -89,6 +89,16 @@ public:
 	~IndexInfo(){};
 };
 
+class singleIndex
+{
+	vector<IndexInfo> values;
+};
+
+class multiIndex
+{
+	vector<singleIndex> indexes;
+};
+
 class BlockInfo
 {
 public:
