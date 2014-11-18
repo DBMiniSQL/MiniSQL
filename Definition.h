@@ -36,11 +36,11 @@ public:
     int offset;    
 };
 
-class Data
+class Data 	//???
 {
 public:
     vector<Record> records;
-    vector<int> location;//???
+    vector<int> location;
 };
 
 class AttrInfo
@@ -60,14 +60,14 @@ class TableInfo
 {
 public:
 	string name;
-	int attrNum;	//表中含有的属性数
+	int attrNum;		//表中含有的属性数
 	int totalLength;	//值为sum(attributes[i].length)
 	vector<AttrInfo> attributes;
 	TableInfo():attrNum(0),totalLength(0){};
 	~TableInfo(){};
 };
 
-class Index //存在catalog里面
+class Index 			//存在catalog里面
 {
 public:
 	string name;

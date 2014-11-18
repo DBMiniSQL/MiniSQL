@@ -3,27 +3,24 @@
  *
  *  Created on: 2014年10月31日
  *      Author: Chong Xiaoya
+ *
+ *两个结构体需要修改！
+ *
  */
+
 
 #ifndef INDEX_MANAGER_H_
 #define INDEX_MANAGER_H_
 
-#include<iostream>
-#include<CString>
-#include<vector>
+#include "Definition.h"
+#include "BlockInfo.h"
+#include "FileInfo.h"
 
-#include"Buffer.h"
-#include"Record.h"
+#include "Buffer.h"
+#include "Record.h"
 
 using namespace std;
-#define LT 100
-#define LE 101
-#define GT 102
-#define GE 103
-#define EQ 104
-#define INT 201
-#define CHAR 202
-#define FLOAT 203
+
 struct BlockInfo;
 
 

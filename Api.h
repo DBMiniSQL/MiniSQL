@@ -7,11 +7,10 @@
 #if !defined(_API_H_)
 #define _API_H_
 
-#include "record_manager.h"
-#include "buffer_manager.h"
-#include "index_manager.h"
-#include "catalog_manager.h"
-#include "interpreter.h"
+#include "Definition.h"
+#include "Catalog.h"
+#include "Record.h"
+#include "IndexManager.h"
 
 class Api{
 public:
@@ -20,10 +19,10 @@ public:
 	static bool createDatabase(string dbName);
 	static bool dropDatabase(string dbName);
 	static bool useDatabase(string dbName);
-	static bool createTable(Table table);
-	static bool dropTable(Table table);
-	static bool createIndex(Index index);
-	static bool dropIndex(Index index);
+	static bool createTable(TableInfo& table);
+	static bool dropTable(TableInfo& table);
+	static bool createIndex(Index& index);
+	static bool dropIndex(Index& index);
 	static bool selectRecord(string tableName,vector<string>& columns,vector<Condition>& conds);
 	static bool insertRecord(string tableName,vector<string>& values);
 	static bool deleteRecord(string tableName);

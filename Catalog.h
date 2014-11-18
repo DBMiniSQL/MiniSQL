@@ -14,7 +14,7 @@ class CatalogManager
 private:
 	string dbName;
 	vector<TableInfo> tables;	//全部表
-	int tableNum;			//数据库内表的数量,等于tables.size()
+	int tableNum;				//数据库内表的数量,等于tables.size()
 	vector<Index> indexes;
 	int indexNum;
 public:

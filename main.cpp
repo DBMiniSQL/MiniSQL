@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//  miniSQL2
+//  miniSQL
 //
 //  Created by Leon on 14/11/8.
 //  Copyright (c) 2014年 ZJU. All rights reserved.
