@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 #ifndef __DEFINITION_H__
 #define __DEFINITION_H__
 

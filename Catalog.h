@@ -246,7 +246,7 @@ bool CatalogManager::createTable(TableInfo newTable)
 	}
 	file.open(filename.c_str(), ios::out);
 	file << 0;          //blockAmount
-	file << tableNum;   //recordLength
+	file << newTable.totalLength;   //recordLength
 	file << 0;          //recordAmount
 	file << 0;			//emptyAmount
 	int emptyBlock[100];
