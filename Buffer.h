@@ -72,7 +72,7 @@ public:
 	void closeDatabase(string dbName);
 
 	//quit the process
-	void quitProc(string dbName);
+	bool quitProc(string dbName);
 
 };
 

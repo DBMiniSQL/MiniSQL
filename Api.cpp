@@ -49,7 +49,9 @@ bool Api::dropIndex(Index& index){
 }
 
 bool Api::selectRecord(string tableName,vector<string>& columns,vector<Condition>& conds){
-	myCatalog.existIndex(tableName,)
+	for(int i=0;i < conds.size();i++){
+			if(myCatalog.existIndex(tableName,conds[i].columname));		
+	}
 	selectRecord(tableName,columns,conds);
 }
 
@@ -61,6 +63,9 @@ bool Api::deleteRecord(string tableName,vector<string>& values){
 	return RecordManager::deleteRecord(tableName,conds);
 }
 
-bool Api::quit(){
-	return quitProc()
+void Api::quit(){
+	if(quitProc())
+		cout << "Exit miniSQL." << endl;
+	else
+		cout << "Exit Failed!" << endl;
 }

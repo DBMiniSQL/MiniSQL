@@ -1,19 +1,26 @@
 #ifndef __DEFINITION_H__
 #define __DEFINITION_H__
 
-#include <string.h>
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <string>
 
-#define DATAFILE 0
-#define INT 1
-#define FLOAT 2
-#define CHAR 3
+#define LT			100			//less than <
+#define LE			101			//less or equal <=
+#define	GT			102			//great than >
+#define GE			103			//great or equal >=
+#define EQ			104			//equal =
+#define NE			105			//not equal <>
+
+#define DATAFILE	0
+#define INT			1
+#define FLOAT		2
+#define CHAR		3
 
 #define FILLEMPTY "0"
 #define BLOCKSIZE 4096			//the size of the block
-	
+
 #define MAX_FILE_ACTIVE	5		//limit the active files in the buffer
 #define MAX_BLOCK		50 		//the max number of blocks
 
@@ -24,60 +31,74 @@ class Result
 public:
 	int blockNum;
 	vector<int> offsets;
-	result():blockNum(-1);
-	~result();
+	Result() :blockNum(-1){};
+	~Result(){};
 };
 
-class Record   //RecordÁ±ªÔºåÁî®Êù•Â≠òÂÇ®‰∏ÄÊù°ËÆ∞ÂΩï
+class Record   //Record¿‡£¨”√¿¥¥Ê¥¢“ªÃıº«¬º
 {
 public:
-    vector<string> columns;
-    int blockNum;
-    int offset;    
-};
-
-class Data 	//???
-{
-public:
-    vector<Record> records;
-    vector<int> location;
+	vector<string> columns;
+	int blockNum;
+	int offset;
 };
 
 class AttrInfo
 {
 public:
-    string name;
+	string name;
 	int type;
 	int length;
 	bool isPrimeryKey;
 	bool isUnique;
 	string indexName;
-	AttrInfo():isPrimeryKey(false),isUnique(false){};
-	AttrInfo(string a_name, int a_type, int a_length, bool isP, bool isU):name(a_name), type(a_type), length(a_length), isPrimeryKey(isP), isUnique(isU){};
+	AttrInfo() :isPrimeryKey(false), isUnique(false){};
+	AttrInfo(string a_name, int a_type, int a_length, bool isP, bool isU) :name(a_name), type(a_type), length(a_length), isPrimeryKey(isP), isUnique(isU){};
+	void init(){
+		name = "";
+		type = 0;
+		length = 0;
+		isPrimeryKey = false;
+		isUnique = false;
+	}
+	void debug(){ //µ˜ ‘ ± π”√
+		cout << "name=" << name << "  type=" << type << "  length=" << length << "  isPrimeryKey=" << isPrimeryKey << "  isUnique=" << isUnique << endl;
+	}
 };
 
 class TableInfo
 {
 public:
 	string name;
-	int attrNum;		//Ë°®‰∏≠Âê´ÊúâÁöÑÂ±ûÊÄßÊï∞
-	int totalLength;	//ÂÄº‰∏∫sum(attributes[i].length)
+	string primaryKey;
+	int attrNum;		//±Ì÷–∫¨”–µƒ Ù–‘ ˝
+						//‘⁄Interpreter÷–ŒªattriNum
+	int totalLength;	//÷µŒ™sum(attributes[i].length)
 	vector<AttrInfo> attributes;
-	TableInfo():attrNum(0),totalLength(0){};
+	TableInfo() :attrNum(0), totalLength(0){};
 	~TableInfo(){};
+	void debug(){
+		cout << name << " " << primaryKey << " " << attrNum << endl;
+		for (int i = 0; i<attributes.size(); i++)
+			attributes.at(i).debug();
+	}
 };
 
-class Index 			//Â≠òÂú®catalogÈáåÈù¢
+class Index 			//¥Ê‘⁄catalog¿Ô√Ê
 {
 public:
-	string name;
-	string tableName;
-	string attrName;
-	Index(){};
+	string name;		//Interpreter÷–Œ™index_name
+	string tableName;	//Interpreter÷–Œ™Table_name
+	string attrName;	//Interpreter÷–Œ™column_name
+	int column;			//‘⁄ƒƒÃı Ù–‘…œΩ®¡¢¡ÀÀ˜“˝
+	Index():name(""),tableName(""){};
 	~Index(){};
+	void debug(){
+		cout << name << " " << tableName << " " << attrName << endl;
+	}
 };
 
-class IndexInfo: class Index //B+TreeNode
+class IndexInfo : public Index //B+TreeNode
 {
 public:
 	int blockNum;
@@ -85,7 +106,7 @@ public:
 	int type;
 	int length;
 	string value;
-	IndexInfo():blockNum(-1),offset(-1){};
+	IndexInfo() :blockNum(-1), offset(-1){};
 	~IndexInfo(){};
 };
 
@@ -99,78 +120,24 @@ class multiIndex
 	vector<singleIndex> indexes;
 };
 
-class BlockInfo
+class Data 	//???
 {
 public:
-	int blockNum;
-	bool dirtyBit;
-	BlockInfo* next;
-	FileInfo* file;
-	int charNum;
-	char* cBlock;
-	int iTime;
-	int lock;
-	int father;
-	bool isFull;
-	BlockInfo(){
-		blockNum = -1;
-		dirtyBit = 0;
-		next = NULL;
-		file = NULL;
-		charNum = 0;
-		cBlock = new char[BLOCKSIZE];
-		father = -1;
-		iTime = 0;
-		lock = 0;	
-		isFull = 0;
-	}
-	~BlockInfo(){
-		delete [] cBlock;
-	}
-	void clearBlock(){
-		blockNum = -1;
-		dirtyBit = 0;
-		next = NULL;
-		file = NULL;
-		charNum = 0;
-		delete [] cBlock;
-		cBlock = new char[BLOCKSIZE];
-		father = -1;
-		iTime = 0;
-		lock = 0;
-		isFull = 0;
-	}
-};
-
-class FileInfo{
-public:
-	int type;					//0 for Data File
-								//1 for Index File
-	string fileName;			//the name of the file
-	int recordAmount;			//the number of the record in th file
-	int freeNum;				//the free block number which could be used for the file
-	FileInfo* next;				//the pointer points to the next file
-	BlockInfo* firstBlock;		//point to the first blcok within the file
-	FileInfo();
-	FileInfo(int fileType,string name){
-		type = fileType;
-		fileName = name;
-		recordAmount = 0;
-		freeNum = 0;
-		next = NULL;
-		firstBlock = NULL;
-	}
-	~FileInfo();
+	vector<Record> records;
+	vector<int> location;
 };
 
 //stants for less than, less equal, greater than, greater equal, equal, not equal respectivly
 class Condition
 {
 public:
-    int op;
-    int columnNum;
-    string columname;
-    string value;
+	int op;
+	int columnNum;						//’‚ « ≤√¥?
+	string columname;
+	string value;
+	void debug(){
+		cout << columname << " " << op << " " << value << endl;
+	}
 };
 
 #endif
