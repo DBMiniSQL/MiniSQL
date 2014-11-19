@@ -15,12 +15,12 @@
 class Api{
 public:
 	Api(){}
-	virtual ~Api()
+	virtual ~Api();
 	void createDatabase(string dbName);
 	void dropDatabase(string dbName);
 	void useDatabase(string dbName);
 	void createTable(TableInfo& table);
-	void dropTable(TableInfo& table);
+	void dropTable(string tableName);
 	void createIndex(Index& index);
  	void dropIndex(Index& index);
 	void selectRecord(string tableName,vector<string>& columns,vector<Condition>& conds);

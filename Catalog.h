@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+using namespace std;
+
 class CatalogManager
 {
 private:
@@ -161,7 +163,7 @@ bool CatalogManager::initialCatalog()
 	 		fin >> temp_attr.name;
 	 		fin >> temp_attr.type;
 	 		fin >> temp_attr.length;
-	 		fin >> temp_attr.isPrimeryKey;
+	 		fin >> temp_attr.isPrimaryKey;
 	 		fin >> temp_attr.indexName;
 	 		temp_table.attributes.push_back(temp_attr);
 	 		temp_table.totalLength += temp_attr.length;
@@ -206,7 +208,7 @@ bool CatalogManager::storeCatalog()
 			fout << tables[i].attributes[j].name << " ";
 			fout << tables[i].attributes[j].type << " ";
 			fout << tables[i].attributes[j].length << " ";
-			fout << tables[i].attributes[j].isPrimeryKey  << " ";
+			fout << tables[i].attributes[j].isPrimaryKey  << " ";
 			fout << tables[i].attributes[j].indexName << endl;
 	 	}
 	}
@@ -248,7 +250,7 @@ bool CatalogManager::createTable(TableInfo newTable)
 		cout << "Please USE DATABASE." << endl;
 		return false;
 	}
-	const string filename = DB_Name + "_" + newTable.name + ".db";
+	const string filename = dbName + "_" + newTable.name + ".db";
 	fstream file;
 	file.open(filename.c_str(), ios::in);
 	if(file)
@@ -279,7 +281,7 @@ bool CatalogManager::createIndex(Index index)
 		cout << "Please USE DATABASE." << endl;
 		return false;
 	}
-	const string filename = DB_Name + "_" + index.tableName + "_" + index.attrName + "_" + index.name + ".index";
+	const string filename = dbName + "_" + index.tableName + "_" + index.attrName + "_" + index.name + ".index";
 	fstream file;
 	file.open(filename.c_str(), ios::in);
 	if(file)
@@ -329,7 +331,7 @@ bool CatalogManager::dropTable(string Table_Name)
 		cout << "Please USE DATABASE." << endl;
 		return false;
 	}
-	const string filename = DB_Name + "_" + Table_Name + ".db";
+	const string filename = dbName + "_" + Table_Name + ".db";
 	if(!remove(filename.c_str()))
 		return false;
 	for(int i = tableNum -1; i >= 0; i--)
@@ -361,7 +363,7 @@ bool CatalogManager::dropIndex(string Index_Name)
 					for(int k = 0; k < tables[i].attrNum; k++)
 						if(tables[j].attributes[k].name == indexes[i].attrName)
 							tables[j].attributes[k].indexName = "";
-			const string filename = DB_Name + "_" + indexes[i].tableName + "_" + indexes[i].attrName + "_" + Index_Name + ".index";
+			const string filename = dbName + "_" + indexes[i].tableName + "_" + indexes[i].attrName + "_" + Index_Name + ".index";
 			if(!remove(filename.c_str()))
 				return false;
 			indexes.erase(indexes.begin()+i);
@@ -403,7 +405,7 @@ bool CatalogManager::getIndexInfo(string Index_Name, Index& index)
 	{
 		if(indexes[i].name == Index_Name)
 		{	
-			index = indexes[i]
+			index = indexes[i];
 			return true;
 		}
 	}
@@ -422,7 +424,7 @@ bool CatalogManager::getIndexInfo(string Table_Name, string Attr_Name, Index& in
 	{
 		if(indexes[i].tableName == Table_Name && indexes[i].attrName == Attr_Name)
 		{	
-			index = indexes[i]
+			index = indexes[i];
 			return true;
 		}
 	}

@@ -27,6 +27,12 @@
 
 using namespace std;
 
+Buffer myBuffer;
+Api myApi;
+BPlusTree myIndex;
+CatalogManager myCatalog;
+Interpreter myinterpreter;
+
 class Result
 {
 public:

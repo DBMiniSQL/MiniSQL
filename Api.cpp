@@ -25,7 +25,7 @@ void Api::createTable(TableInfo& table){
 	myCatalog.createIndex(tempIndex);	//不查错
 	for(int i=0;i<table.unique.size();i++){
 		Index tempIndex2("sys"+table.unique[i],table.name,table.unique[i]);
-		myCatalog.createIndex(tempIndex2;)
+		myCatalog.createIndex(tempIndex2);
 	}
 
 	if(myCatalog.createTable(table))
@@ -34,9 +34,9 @@ void Api::createTable(TableInfo& table){
 		cout << "Create Failed!" << endl;
 }
 
-void Api::dropTable(TableInfo& table){
-	if(myCatalog.dropTable(table))
-		cout << "You dropped a table:" << table.name << endl;
+void Api::dropTable(string tableName){
+	if(myCatalog.dropTable(tableName))
+		cout << "You dropped a table:" << tableName << endl;
 	else
 		cout << "Dropped Failed!" << endl;
 }
@@ -185,7 +185,7 @@ void Api::deleteRecord(string tableName,vector<Condition>& conds){
 }
 
 void Api::quit(){
-	if(quitProc())
+	if(myBuffer.quitProc())
 		cout << "Exit miniSQL." << endl;
 	else
 		cout << "Exit Failed!" << endl;

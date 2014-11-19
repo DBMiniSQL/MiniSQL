@@ -8,11 +8,6 @@
 
 #include <iostream>
 #include "Interpreter.h"
-Interpreter myinterpreter;
-//Buffer myBuffer;
-//Api myApi;
-//BPlusTree myIndex;
-//CatalogManager myCatalog;
 
 using namespace std;
 int main(int argc, const char * argv[]) {
