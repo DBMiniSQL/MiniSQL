@@ -1,4 +1,5 @@
 #include "Record.h"
+#include "BlockInfo.h"
 extern Buffer bufferManager;
 
 int blockMore(int totalLength, int recordNum, int occupied)
@@ -21,7 +22,7 @@ bool isFull(int totalLength, int occupied)
 
 bool emptyRecord(char* block, int length)
 {
-	char empRec[length];
+	char* empRec = new char[length];
 	memset(empRec, '0', length);
 	if(0 == memcmp(block, empRec, length))
 		return true;
@@ -124,7 +125,7 @@ void getData(string DB_Name, TableInfo table, Data& data)
 					int rLength = table.attributes[k].length;
 					while(rLength > 0 && tmpBlock[table.attributes[k].length-rLength] == '0')
 						rLength--;
-					char tmpValue[rLength+1];
+					char* tmpValue = new char[rLength+1];
 					memmove(tmpValue, tmpBlock+table.attributes[k].length-rLength, rLength);
 					tmpValue[rLength] = '\0';
 					string tmpColumn = tmpValue;
@@ -155,7 +156,7 @@ void getIndexData(string DB_Name, TableInfo table,vector<Result> results, Data& 
 				int rLength = table.attributes[k].length;
 				while(rLength > 0 && tmpBlock[table.attributes[k].length-rLength] == '0')
 					rLength--;
-				char tmpValue[rLength+1];
+				char* tmpValue = new char[rLength+1];
 				memmove(tmpValue, tmpBlock+table.attributes[k].length-rLength, rLength);
 				tmpValue[rLength] = '\0';
 				string tmpColumn = tmpValue;
@@ -169,15 +170,16 @@ void getIndexData(string DB_Name, TableInfo table,vector<Result> results, Data& 
 
 void select(TableInfo table, Data dataIn, Data &dataOut, vector<string>& columns, vector<Condition>& conds)
 {
+	int i;
 	if(columns.size() == 0)
 	{//显示记录所有属性
 		for (int eveCond = 0; eveCond < conds.size(); ++eveCond)
 			for (i = 0; i < dataIn.records.size(); ++i)
 			{
 				int k = 0;
-				while(table.attributes[k].name != conds[eveCond].columnname)
+				while(table.attributes[k].name != conds[eveCond].columname)
 					k++;
-				bool isSatisfy = compare(conds[eveCond].value, dataIn.records[i].columns[k], table.attributes[k].tpye, conds[eveCond].op);
+				bool isSatisfy = compare(conds[eveCond].value, dataIn.records[i].columns[k], table.attributes[k].type, conds[eveCond].op);
 				if(!isSatisfy)
 					dataIn.records.erase(dataIn.records.begin()+i);
 			}
@@ -190,9 +192,9 @@ void select(TableInfo table, Data dataIn, Data &dataOut, vector<string>& columns
 			for (i = 0; i < dataIn.records.size(); ++i)
 			{
 				int k = 0;
-				while(table.attributes[k].name != conds[eveCond].columnname)
+				while(table.attributes[k].name != conds[eveCond].columname)
 					k++;
-				bool isSatisfy = compare(conds[eveCond].value, dataIn.records[i].columns[k], table.attributes[k].tpye, conds[eveCond].op);
+				bool isSatisfy = compare(conds[eveCond].value, dataIn.records[i].columns[k], table.attributes[k].type, conds[eveCond].op);
 				if(!isSatisfy)
 					dataIn.records.erase(dataIn.records.begin()+i);
 			}
@@ -218,10 +220,15 @@ void select(TableInfo table, Data dataIn, Data &dataOut, vector<string>& columns
 
 void coutPrint(vector<string>& columns, Data& dataOut)
 {
+	if(dataOut.records.size() == 0)
+	{	
+		cout << "No satisfied record!" << end;
+		return;
+	}
 	for (int i = 0; i < columns.size(); ++i)
 		cout << columns[i] << '\t' ;
 	cout << endl;
-	for (i = 0; i < dataOut.records.size(); ++i)
+	for (int i = 0; i < dataOut.records.size(); ++i)
 	{
 		for (int j = 0; j < dataOut.records[i].columns.size(); ++j)
 			cout << dataOut.records[i].columns[j] << '\t' ;
@@ -233,27 +240,29 @@ void coutPrint(vector<string>& columns, Data& dataOut)
 void insertRecord(string DB_Name, TableInfo table, Data insertedValues, vector<Index> existIndex, vector<IndexInfo>& indexValues)
 {
 	int record_Num = insertedValues.records.size();
-	char* stringValues;
+	char* stringValues = new char[table.totalLength*record_Num];
 	for (int i = 0; i < insertedValues.records.size(); ++i)
 	{
 		for(int j =0; j < insertedValues.records[i].columns.size(); ++j)
-		if(insertedValues.records[i].columns[j].length() < table.attributes[j].length)
-			for(int k = 0; k < table.attributes[j].length - insertedValues.records[i].columns[j].length(); ++k)
-				insertedValues.records[i].columns[j] = FILLEMPTY + insertedValues.records[i].columns[j];
-		stringValues = strcat(stringValues, insertedValues.records[i].columns[j].c_str());//stringValues += insertedValues[i];			
+		{
+			if(insertedValues.records[i].columns[j].length() < table.attributes[j].length)
+					for(int k = 0; k < table.attributes[j].length - insertedValues.records[i].columns[j].length(); ++k)
+						insertedValues.records[i].columns[j] = FILLEMPTY + insertedValues.records[i].columns[j];
+				stringValues = strcat(stringValues, insertedValues.records[i].columns[j].c_str());//stringValues += insertedValues[i];			
+		}
 	}
 	BlockInfo* newBlock = bufferManager.getAvaBlock(DB_Name, table.name);
 	int blockAmount = blockMore(table.totalLength, record_Num, newBlock->charNum);
 	if(blockAmount == 0)
 	{
 		int tableLength = table.totalLength*record_Num;
+		int oriOffset = newBlock->charNum / table.totalLength;	//indexInfo
 		char* tmpBlock = newBlock->cBlock+newBlock->charNum;
 		memmove(newBlock->cBlock+newBlock->charNum, stringValues, table.totalLength*record_Num);
 		newBlock->charNum += tableLength;
 		newBlock->isFull = isFull(table.totalLength, charNum);
 		newBlock->dirtyBit = true;
 		//indexInfo容器
-		int oriOffset = newBlock->charNum / table.totalLength;	//indexInfo
 		for (int i = 0; i < record_Num; ++i)
 		{
 			int avaIndexNum = 0;
@@ -270,9 +279,9 @@ void insertRecord(string DB_Name, TableInfo table, Data insertedValues, vector<I
 					tmpIndex.offset = oriOffset+i;
 					tmpIndex.type = table.attributes[j].type;
 					tmpIndex.length = table.attributes[j].length;
-					char tmpValue[table.attributes[j].length];
-					memcpy(tmpValue, tmpBlock, table.attributes[j].length);
-					tmpIndex.value = tmpValue;
+					char* tmpValue = new char[table.attributes[j].length+1];
+					memmove(tmpValue, tmpBlock, table.attributes[j].length);
+					tmpValue[table.attributes[j].length] = '\0';
 					indexValues.push_back(tmpIndex);
 				}
 				tmpBlock += table.attributes[j].length;
@@ -284,10 +293,10 @@ void insertRecord(string DB_Name, TableInfo table, Data insertedValues, vector<I
 		int tableLength = BLOCKSIZE- BLOCKSIZE%totalLength;
 		int initSize = tableLength - newBlock->charNum;
 		char* tmpBlock;
-		int oriOffset, insertNum;
-		for (int i = 0; i < blockAmount; ++i)
+		int oriOffset, insertNum, eveBlock;
+		for (eveBlock = 0; eveBlock < blockAmount; ++eveBlock)
 		{
-			if (i == 0)
+			if (eveBlock == 0)
 			{
 				memmove(newBlock->cBlock+newBlock->charNum, stringValues, initSize);
 				tmpBlock = newBlock->cBlock+newBlock->charNum;
@@ -296,7 +305,7 @@ void insertRecord(string DB_Name, TableInfo table, Data insertedValues, vector<I
 			}				
 			else
 			{
-				memmove(newBlock->cBlock, stringValues+initSize+(i-1)*tableLength, tableLength);
+				memmove(newBlock->cBlock, stringValues+initSize+(eveBlock-1)*tableLength, tableLength);
 				tmpBlock = newBlock->cBlock;
 				oriOffset = 0;
 				insertNum = BLOCKSIZE%totalLength;
@@ -310,7 +319,7 @@ void insertRecord(string DB_Name, TableInfo table, Data insertedValues, vector<I
 				int avaIndexNum = 0;
 				for (int j = 0; j < table.attrNum; ++j)
 				{
-					if(table.attributes[j].name == existIndex[avaIndexNum].attrName)
+					if(avaIndexNum<existIndex.size() && table.attributes[j].name == existIndex[avaIndexNum].attrName)
 					{
 						avaIndexNum++;
 						IndexInfo tmpIndex;
@@ -321,9 +330,9 @@ void insertRecord(string DB_Name, TableInfo table, Data insertedValues, vector<I
 						tmpIndex.offset = oriOffset+i;
 						tmpIndex.type = table.attributes[j].type;
 						tmpIndex.length = table.attributes[j].length;
-						char tmpValue[table.attributes[j].length];
-						memcpy(tmpValue, tmpBlock, table.attributes[j].length);
-						tmpIndex.value = tmpValue;
+						char* tmpValue = new char[table.attributes[j].length+1];
+						memmove(tmpValue, tmpBlock, table.attributes[j].length);
+						tmpValue[table.attributes[j].length] = '\0';
 						indexValues.push_back(tmpIndex);
 					}
 					tmpBlock += table.attributes[j].length;
@@ -334,9 +343,9 @@ void insertRecord(string DB_Name, TableInfo table, Data insertedValues, vector<I
 		//最后一块
 		tmpBlock = newBlock->cBlock;
 		oriOffset = 0;
-		newBlock->charNum = table.totalLength*record_Num - initSize - tableLength*(i-1);
+		newBlock->charNum = table.totalLength*record_Num - initSize - tableLength*(eveBlock-1);
 		insertNum = newBlock->charNum / table.totalLength;
-		memmove(newBlock->cBlock, stringValues+initSize+(i-1)*tableLength, newBlock->charNum);
+		memmove(newBlock->cBlock, stringValues+initSize+(eveBlock-1)*tableLength, newBlock->charNum);
 		newBlock->isFull = isFull(table.totalLength, charNum);
 		newBlock->dirtyBit = true;
 		//indexInfo容器
@@ -356,9 +365,9 @@ void insertRecord(string DB_Name, TableInfo table, Data insertedValues, vector<I
 					tmpIndex.offset = oriOffset+i;
 					tmpIndex.type = table.attributes[j].type;
 					tmpIndex.length = table.attributes[j].length;
-					char tmpValue[table.attributes[j].length];
-					memcpy(tmpValue, tmpBlock, table.attributes[j].length);
-					tmpIndex.value = tmpValue;
+					char* tmpValue = new char[table.attributes[j].length+1];
+					memmove(tmpValue, tmpBlock, table.attributes[j].length);
+					tmpValue[table.attributes[j].length] = '\0';
 					indexValues.push_back(tmpIndex);
 				}
 				tmpBlock += table.attributes[j].length;
@@ -371,7 +380,8 @@ void insertRecord(string DB_Name, TableInfo table, Data insertedValues, vector<I
 void initialIndex(string DB_Name, TableInfo table, string Attr_Name, vector<IndexInfo>& indexValues)
 {
 	int offInRecord = 0;
-	for (int attrNo = 0; attrNo < table.attrNum; ++attrNo)
+	int attrNo;
+	for (attrNo = 0; attrNo < table.attrNum; ++attrNo)
 		if(table.attributes[attrNo].name == Attr_Name)
 			break;
 		else
@@ -394,9 +404,9 @@ void initialIndex(string DB_Name, TableInfo table, string Attr_Name, vector<Inde
 				tmpIndex.offset = j;
 				tmpIndex.type = table.attributes[attrNo].type;
 				tmpIndex.length = table.attributes[attrNo].length;
-				char tmpValue[table.attributes[attrNo].length];
-				tmpValue = memcpy(tmpValue, tmpBlock+offInRecord, table.attributes[attrNo].length);
-				tmpIndex.value = tmpValue;
+				char* tmpValue = new char[table.attributes[attrNo].length+1];
+				memmove(tmpValue, tmpBlock, table.attributes[attrNo].length);
+				tmpValue[table.attributes[attrNo].length] = '\0';
 				indexValues.push_back(tmpIndex);
 			}
 			tmpBlock += table.totalLength;
@@ -408,9 +418,9 @@ void initialIndex(string DB_Name, TableInfo table, string Attr_Name, vector<Inde
 void selectRecord(string DB_Name, vector<string>& columns, TableInfo table, vector<Condition>& conds)
 {
 	Data dataIn, dataOut;
-	getData(DB_Name, table, &dataIn);
-	select(table, dataIn, &dataOut, columns, conds);
-	coutPrint(columns, &dataOut);	
+	getData(DB_Name, table, dataIn);
+	select(table, dataIn, dataOut, columns, conds);
+	coutPrint(columns, dataOut);	
 }
 
 //没索引的delete
@@ -418,26 +428,28 @@ void deletRecord(string DB_Name, TableInfo table, vector<Condition>& conds)
 {
 	Data dataIn, selectedData;
 	vector<string> noColumns;
-	getData(DB_Name, table, &dataIn);
-	select(table, dataIn, &selectedData, &noColumns, conds);
+	getData(DB_Name, table, dataIn);
+	select(table, dataIn, selectedData, noColumns, conds);
 	int affectedNum = selectedData.records.size();
 	for (int i = 0; i < affectedNum; ++i)
 	{
 		BlockInfo* block = bufferManager.getBlock(DB_Name, table.name, selectedData.records[i].blockNum, DATAFILE);
-		char empRec[table.totalLength];
+		char* empRec = new char[table.totalLength];
 		memset(empRec, '0', table.totalLength);
-		memmove(cBlock+table.totalLength*selectedData.records[i].offset, empRec, table.totalLength);
+		memmove(block->cBlock+table.totalLength*selectedData.records[i].offset, empRec, table.totalLength);
 		block->dirtyBit = true;
 	}
+	if(affectedNum != 0)
+		cout << affectedNum << " lines affected." << endl;
 }
 
 //有索引的select
 void printSelectedRecord(string DB_Name, vector<string>& columns, TableInfo table, vector<Condition>& conds, vector<Result> results)
 {
 	Data dataIn, dataOut;
-	getIndexData(DB_Name, table, results, &dataIn);
-	select(table, dataIn, &dataOut, columns, conds);
-	coutPrint(columns, &dataOut);
+	getIndexData(DB_Name, table, results, dataIn);
+	select(table, dataIn, dataOut, columns, conds);
+	coutPrint(columns, dataOut);
 }
 
 //有索引的delete
@@ -445,13 +457,13 @@ void deleteIndexRecord(string DB_Name, TableInfo table, vector<Condition>& conds
 {
 	Data dataIn, selectedData;
 	vector<string> noColumns;
-	getIndexData(DB_Name, table, results, &dataIn);
-	select(table, dataIn, &selectedData, &noColumns, conds);
+	getIndexData(DB_Name, table, results, dataIn);
+	select(table, dataIn, selectedData, noColumns, conds);
 	int affectedNum = selectedData.records.size();
 	for (int i = 0; i < affectedNum; ++i)
 	{
 		BlockInfo* block = bufferManager.getBlock(DB_Name, table.name, selectedData.records[i].blockNum, DATAFILE);
-		char empRec[table.totalLength];
+		char* empRec = new char[table.totalLength];
 		memset(empRec, '0', table.totalLength);
 		memmove(cBlock+table.totalLength*selectedData.records[i].offset, empRec, table.totalLength);
 		block->dirtyBit = true;
@@ -461,10 +473,10 @@ void deleteIndexRecord(string DB_Name, TableInfo table, vector<Condition>& conds
 		int avaIndex = 0;
 		for (int j = 0; j < table.attrNum; ++j)
 		{
-			if (table.attributes[j].indexName == existIndex[avaIndex])
+			if (table.attributes[j].indexName == existIndex[avaIndex].name)
 			{
 				IndexInfo tmpIndex;
-				tmpIndex.name = existIndex[avaIndex];
+				tmpIndex.name = existIndex[avaIndex].name;
 				tmpIndex.tableName = table.name;
 				tmpIndex.attrName = table.attributes[j].name;
 				tmpIndex.type = table.attributes[j].type;
@@ -474,4 +486,6 @@ void deleteIndexRecord(string DB_Name, TableInfo table, vector<Condition>& conds
 			}
 		}
 	}
+	if(affectedNum != 0)
+		cout << affectedNum << " lines affected." << endl;
 }

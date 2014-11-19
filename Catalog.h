@@ -20,7 +20,7 @@ private:
 	vector<Index> indexes;
 	int indexNum;
 public:
-	CatalogManager(){};
+	CatalogManager():tableNum(0), indexNum(0){};
 	CatalogManager(string name):dbName(name)
 	{
 		initialCatalog();
@@ -140,7 +140,7 @@ bool CatalogManager::initialCatalog()
 {
 	string filename = dbName + "_table.catalog";
 	fstream  fin(filename.c_str(), ios::in);
-	if(!fin)
+	if (!fin)
 		return false;
 	fin >> tableNum;
 	for(int i = 0; i < tableNum; i++)
@@ -192,6 +192,8 @@ bool CatalogManager::initialCatalog()
 bool CatalogManager::storeCatalog()
 {
 	string filename = dbName + "_table.catalog";
+	if (tableNum == 0)
+		return false;
 	fstream  fout(filename.c_str(), ios::out);
 	fout << tableNum << endl;
 	for(int i = 0; i < tableNum; i++)
@@ -239,6 +241,7 @@ bool CatalogManager::createDatabase(string DB_Name)
 	fout.open(filename.c_str(), ios::out);
 	fout << 0 << endl;
 	fout.close();
+	initialCatalog();
 
 	return true;
 }
@@ -292,6 +295,7 @@ bool CatalogManager::createIndex(Index index)
 	file.open(filename.c_str(), ios::out);
 	file << 0;//blockAmount
 	file.close();
+	indexNum++;
 	indexes.push_back(index);
 	for (int i = 0; i < tableNum; ++i)
 		if(tables[i].name == index.tableName)
@@ -304,24 +308,29 @@ bool CatalogManager::createIndex(Index index)
 
 bool CatalogManager::dropDatabase(string DB_Name)
 {
+	useDatabase(DB_Name);
 	string filename = DB_Name + "_table.catalog";
-	if(!remove(filename.c_str()))
+	if (remove(filename.c_str()) != 0)
 		return false;
 	filename = DB_Name + "_index.catalog";
-	if(!remove(filename.c_str()))
+	if(remove(filename.c_str())!=0)
 		return false;
 	for (int i = 0; i < tableNum; ++i)
 	{
 		filename = DB_Name + "_" +tables[i].name + ".db";
-		if(!remove(filename.c_str()))
+		if(remove(filename.c_str())!=0)
 			return false;
 	}
 	for (int i = 0; i < indexNum; ++i)
 	{
 		filename = DB_Name + "_" + indexes[i].tableName + "_" + indexes[i].attrName + "_" + indexes[i].name + ".index";
-		if(!remove(filename.c_str()))
+		if (remove(filename.c_str()) != 0)
 			return false;
 	}
+	tableNum = 0;
+	indexNum = 0;
+	tables.clear();
+	indexes.clear();
 }
 
 bool CatalogManager::dropTable(string Table_Name)
@@ -331,8 +340,11 @@ bool CatalogManager::dropTable(string Table_Name)
 		cout << "Please USE DATABASE." << endl;
 		return false;
 	}
+	for (int i = 0; i < table.attrNum; i++)
+		if (!table.attributes[i].indexName.empty())
+			dropIndex(table.attributes[i].indexName);
 	const string filename = dbName + "_" + Table_Name + ".db";
-	if(!remove(filename.c_str()))
+	if (remove(filename.c_str()) != 0)
 		return false;
 	for(int i = tableNum -1; i >= 0; i--)
 	{
@@ -364,7 +376,7 @@ bool CatalogManager::dropIndex(string Index_Name)
 						if(tables[j].attributes[k].name == indexes[i].attrName)
 							tables[j].attributes[k].indexName = "";
 			const string filename = dbName + "_" + indexes[i].tableName + "_" + indexes[i].attrName + "_" + Index_Name + ".index";
-			if(!remove(filename.c_str()))
+			if (remove(filename.c_str()) != 0)
 				return false;
 			indexes.erase(indexes.begin()+i);
 			indexNum--;
