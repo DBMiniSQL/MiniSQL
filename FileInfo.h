@@ -1,5 +1,11 @@
+#ifndef _FILEINFO_H_
+#define _FILEINFO_H_
+
 #include "Definition.h"
-#include "BlockInfo.h"
+
+using namespace std;
+
+class BlockInfo;
 
 class FileInfo{
 public:
@@ -11,7 +17,7 @@ public:
 	FileInfo* next;				//the pointer points to the next file
 	BlockInfo* firstBlock;		//point to the first blcok within the file
 
-	FileInfo();
+	FileInfo(){};
 	FileInfo(int fileType, string name){
 		type = fileType;
 		fileName = name;
@@ -20,5 +26,7 @@ public:
 		next = NULL;
 		firstBlock = NULL;
 	}
-	~FileInfo();
+	~FileInfo(){};
 };
+
+#endif

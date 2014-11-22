@@ -15,16 +15,17 @@ void Api::dropDatabase(string dbName){
 }
 
 void Api::useDatabase(string dbName){
-	// DB_Name = dbName;	//DB_Name是一个全局变量
 	myCatalog.useDatabase(dbName);
 	cout << "You are using:" << dbName << endl;
 }
 
 void Api::createTable(TableInfo& table){
-	Index tempIndex("sys"+table.primaryKey,table.name,table.primaryKey);
-	myCatalog.createIndex(tempIndex);	//不查错
-	for(int i=0;i<table.unique.size();i++){
-		Index tempIndex2("sys"+table.unique[i],table.name,table.unique[i]);
+	Index tempIndex;
+	tempIndex.initial("sys" + table.primaryKey, table.name, table.primaryKey);
+	myCatalog.createIndex(tempIndex);
+	for (int i = 0; i < table.unique.size();i++){
+		Index tempIndex2;
+		tempIndex2.initial("sys" + table.unique[i], table.name, table.unique[i]);
 		myCatalog.createIndex(tempIndex2);
 	}
 
@@ -34,9 +35,9 @@ void Api::createTable(TableInfo& table){
 		cout << "Create Failed!" << endl;
 }
 
-void Api::dropTable(string tableName){
-	if(myCatalog.dropTable(tableName))
-		cout << "You dropped a table:" << tableName << endl;
+void Api::dropTable(TableInfo table){
+	if(myCatalog.dropTable(table))
+		cout << "You dropped a table:" << table.name << endl;
 	else
 		cout << "Dropped Failed!" << endl;
 }
@@ -48,12 +49,14 @@ void Api::createIndex(Index& index){
 		cout << "Create Failed!" << endl;
 }
 
-void Api::dropIndex(Index& index){
-	if(myCatalog.dropIndex(index))
-		cout << "You dropped an index: " << index.name << " on " << index.attrName << endl;
+void Api::dropIndex(string indexName){
+	if(myCatalog.dropIndex(indexName))
+		cout << "You dropped an index: " << indexName << endl;
 	else
 		cout << "Dropped Failed!" << endl;
 }
+
+//未测试
 
 void Api::selectRecord(string tableName,vector<string>& columns,vector<Condition>& conds){
 	Condition tempCond;

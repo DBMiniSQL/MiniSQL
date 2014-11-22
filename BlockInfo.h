@@ -1,4 +1,10 @@
+#ifndef _BLOCKINFO_H_
+#define _BLOCKINFO_H_
+
+#include "Definition.h"
 #include "FileInfo.h"
+
+using namespace std;
 
 class BlockInfo
 {
@@ -35,6 +41,15 @@ public:
 		next = NULL;
 		file = NULL;
 		charNum = 0;
+		father = -1;
+		iTime = 0;
+		lock = 0;
+		isFull = 0;
+	}
+
+	void deleteBlock(){
+		dirtyBit = 1;
+		charNum = 0;
 		delete[] cBlock;
 		cBlock = new char[BLOCKSIZE];
 		father = -1;
@@ -42,4 +57,7 @@ public:
 		lock = 0;
 		isFull = 0;
 	}
+
 };
+
+#endif

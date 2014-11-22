@@ -12,17 +12,22 @@
 #include "Record.h"
 #include "IndexManager.h"
 
+extern CatalogManager myCatalog;
+extern IndexManager myIndex;
+
+using namespace std;
+
 class Api{
 public:
 	Api(){}
-	virtual ~Api();
+	~Api(){};
 	void createDatabase(string dbName);
 	void dropDatabase(string dbName);
 	void useDatabase(string dbName);
 	void createTable(TableInfo& table);
-	void dropTable(string tableName);
+	void dropTable(TableInfo table);
 	void createIndex(Index& index);
- 	void dropIndex(Index& index);
+ 	void dropIndex(string indexName);
 	void selectRecord(string tableName,vector<string>& columns,vector<Condition>& conds);
 	void insertRecord(string tableName,vector<string>& values);
 	void deleteRecord(string tableName);

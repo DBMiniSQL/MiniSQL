@@ -1,12 +1,5 @@
-<<<<<<< Updated upstream
 #ifndef __DEFINITION_H__
 #define __DEFINITION_H__
-
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include <string>
-
 #define LT			100			//less than <
 #define LE			101			//less or equal <=
 #define	GT			102			//great than >
@@ -22,16 +15,17 @@
 #define FILLEMPTY "0"
 #define BLOCKSIZE 4096			//the size of the block
 
-#define MAX_FILE_ACTIVE	5		//limit the active files in the buffer
-#define MAX_BLOCK		50 		//the max number of blocks
+#define MAX_FILE_ACTIVE	2		//limit the active files in the buffer
+#define MAX_BLOCK		5 		//the max number of blocks
+//暂时改成2和5来测试
+//之后改成5和50
+
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <string>
 
 using namespace std;
-
-Buffer myBuffer;
-Api myApi;
-BPlusTree myIndex;
-CatalogManager myCatalog;
-Interpreter myinterpreter;
 
 class Result
 {
@@ -106,8 +100,12 @@ public:
 	string tableName;	//Interpreter中为Table_name
 	string attrName;	//Interpreter中为column_name
 	Index():name(""),tableName(""){};
-	Index(string i_name,string i_tableName,string i_attrName):name(i_name),tableName(i_tableName),attrName(i_attrName){};
 	~Index(){};
+	void initial(string i_name, string i_tableName, string i_attrName){
+		name = i_name;
+		tableName = i_tableName;
+		attrName = i_attrName;
+	}
 	void debug(){
 		cout << name << " " << tableName << " " << attrName << endl;
 	}

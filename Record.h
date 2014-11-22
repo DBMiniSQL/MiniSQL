@@ -5,7 +5,7 @@
 #include "Buffer.h"		//根据buffer模块修改
 #include <stdio.h>
 
-extern Buffer bufferManager;
+extern Buffer myBuffer;
 
 //计算插入所需block数量
 int blockMore(int totalLength, int recordNum, int occupied);
