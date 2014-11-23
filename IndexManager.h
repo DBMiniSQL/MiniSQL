@@ -8,140 +8,17 @@
 #ifndef INDEX_MANAGER_H_
 #define INDEX_MANAGER_H_
 
-#include<iostream>
 #include<CString>
-#include<vector>
-//#include "Definition.h"
-//#include "BlockInfo.h"
-//#include "FileInfo.h"
-#define BLOCKSIZE 4096
+
+#include "Definition.h"
+#include "Buffer.h"
+#include "BlockInfo.h"
+#include "FileInfo.h"
+
+extern Buffer myBuffer;
+
 using namespace std;
-#define LT 100
-#define LE 101
-#define GT 102
-#define GE 103
-#define EQ 104
-#define INT 201
-#define CHAR 202
-#define FLOAT 203
-struct BlockInfo;
-class FileInfo{
-public:
-	int type;					//0 for Data File
-	//1 for Index File
-	string fileName;			//the name of the file
-	int recordAmount;			//the number of the record in th file
-	int freeNum;				//the free block number which could be used for the file
-	FileInfo* next;				//the pointer points to the next file
-	BlockInfo* firstBlock;		//point to the first blcok within the file
 
-	FileInfo();
-	FileInfo(int fileType, string name){
-		type = fileType;
-		fileName = name;
-		recordAmount = 0;
-		freeNum = 0;
-		next = NULL;
-		firstBlock = NULL;
-	}
-	~FileInfo();
-};
-
-class BlockInfo
-{
-public:
-	int blockNum;
-	bool dirtyBit;
-	BlockInfo* next;
-	FileInfo* file;
-	int charNum;
-	char* cBlock;
-	int iTime;
-	int lock;
-	int father;
-	bool isFull;
-
-	BlockInfo(){
-		blockNum = -1;
-		dirtyBit = 0;
-		next = NULL;
-		file = NULL;
-		charNum = 0;
-		cBlock = new char[BLOCKSIZE];
-		father = -1;
-		iTime = 0;
-		lock = 0;
-		isFull = 0;
-	}
-	~BlockInfo(){
-		delete[] cBlock;
-	}
-	void clearBlock(){
-		blockNum = -1;
-		dirtyBit = 0;
-		next = NULL;
-		file = NULL;
-		charNum = 0;
-		delete[] cBlock;
-		cBlock = new char[BLOCKSIZE];
-		father = -1;
-		iTime = 0;
-		lock = 0;
-		isFull = 0;
-	}
-};
-
-// 所读取块的信息
-class Index 			//存在catalog里面
-{
-public:
-	string name;		//Interpreter中为index_name
-	string tableName;	//Interpreter中为Table_name
-	string attrName;	//Interpreter中为column_name
-	int column;			//在哪条属性上建立了索引
-	Index():name(""),tableName(""){};
-	~Index(){};
-	void debug(){
-		cout << name << " " << tableName << " " << attrName << endl;
-	}
-};
-class IndexInfo : public Index //B+TreeNode
-{
-public:
-	int blockNum;
-	int offset;
-	int type;
-	int length;
-	string value;
-	IndexInfo() :blockNum(-1), offset(-1){};
-	~IndexInfo(){};
-};
-
-class Condition
-{
-public:
-	int op;
-	int columnNum;						//这是什么?
-	string columname;
-	string value;
-	void debug(){
-		cout << columname << " " << op << " " << value << endl;
-	}
-};
-
-class Result
-{
-public:
-	int blockNum;
-	vector<int> offsets;
-	Result() :blockNum(-1){};
-	~Result(){};
-};
-/*调用buffer的函数，共三个：
-void deleteBlock(string dbName,string name,BlockInfo* tempBlock);
-BlockInfo* getEmptyBlock(string dbName,string name);
-BlockInfo* getBlock(string dbName, string name,int blockNum, int type);
-*/
 class BPlusTree
 {
 private:
@@ -175,7 +52,7 @@ private:
 	int findFather(string dbName,IndexInfo inform, int num);//找到节点的父节点
 	void setN(int n);
 	void getResult(string dbname,string name,int start,int end,IndexInfo inform,string Linfo,int type,vector<Result>& res);
-	void searchOne(string dbName,IndexInfo inform,vector<Result>& res);
+	void searchOne(string dbName, IndexInfo inform, vector<Result>& res);
 	void searchMany(string dbName,int type,IndexInfo inform,vector<Result>& res) ;
 	void insertOne(string dbName, IndexInfo inform);
 	void deleteOne(string dbName,IndexInfo inform);

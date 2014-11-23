@@ -89,6 +89,7 @@ bool CatalogManager::initialCatalog()
 			temp_table.unique.push_back(tempStr);
 		}
 		fin >> temp_table.attrNum;
+		fin >> temp_table.totalLength;
 		//fin >> temp_table.blockNum;
 		for (int j = 0; j < temp_table.attrNum; j++)
 		{//fill in the vector of temp_table.attributes
@@ -188,22 +189,22 @@ bool CatalogManager::createTable(TableInfo newTable)
 	}
 	const string filename = dbName + "_" + newTable.name + ".db";
 	fstream file;
-	file.open(filename, ios::in|ios::binary);
+	file.open(filename, ios::in | ios::binary);
 	if (file)
 	{
 		file.close();
 		return false;
 	}
-	file.open(filename, ios::out|ios::binary);
+	file.open(filename, ios::out | ios::binary);
 	int temp = 0;
 	file.seekp(0, ios::beg);
 	file.write((char*)&temp, sizeof(int));         //blockAmount
-	file.write((char*)&newTable.totalLength,sizeof(int));   //recordLength
+	file.write((char*)&newTable.totalLength, sizeof(int));   //recordLength
 	file.write((char*)&temp, sizeof(int));			//recordAmount
 	file.write((char*)&temp, sizeof(int));         //emptyAmount
 	int emptyBlock[100];
 	memset(emptyBlock, -1, sizeof(emptyBlock));
-	file.write((char*)emptyBlock, 100*sizeof(int));
+	file.write((char*)emptyBlock, 100 * sizeof(int));
 	file.close();
 	tableNum++;
 	tables.push_back(newTable);
@@ -220,13 +221,13 @@ bool CatalogManager::createIndex(Index index)
 	}
 	const string filename = dbName + "_" + index.tableName + "_" + index.attrName + "_" + index.name + ".index";
 	fstream file;
-	file.open(filename, ios::in|ios::binary);
+	file.open(filename, ios::in | ios::binary);
 	if (file)
 	{
 		file.close();
 		return false;
 	}
-	file.open(filename, ios::out|ios::binary);
+	file.open(filename, ios::out | ios::binary);
 	int temp = 0;
 	file.seekp(0, ios::beg);
 	file.write((char*)&temp, sizeof(int));	//blockAmount

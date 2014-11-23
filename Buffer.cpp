@@ -1,6 +1,6 @@
 #include "Buffer.h"
 
-int Buffer::getBlockAmount(string dbName, string name, int fileType){
+int Buffer::getBlockAmount(string& dbName, string& name, int fileType){
 	int blockAmount;
 	string fileName;
 
@@ -21,7 +21,7 @@ int Buffer::getBlockAmount(string dbName, string name, int fileType){
 	return blockAmount;
 }
 
-BlockInfo* Buffer::getBlock(string dbName, string name, int blockNum, int type){
+BlockInfo* Buffer::getBlock(string& dbName, string& name, int blockNum, int type){
 	string fileName = dbName + '_' + name;
 	FileInfo* tempFile = findFile(dbName, fileName, type);
 
@@ -55,15 +55,15 @@ BlockInfo* Buffer::getBlock(string dbName, string name, int blockNum, int type){
 	BlockInfo* tempBlock2 = findBlock(dbName);		//find an available block from buffer
 	//load a block from file into buffer
 	readBlock(dbName, name, type, blockNum, tempBlock2);
-	if (tempBlock2 != NULL)
+	if (tempBlock2->blockNum != -2)
 		addBlock(dbName, name, tempFile, tempBlock2);
-	tempBlock2->iTime++;
+	tempBlock2->iTime++;	
 	tempBlock2->lock = 1;
 
 	return tempBlock2;
 }
 
-BlockInfo* Buffer::getAvaBlock(string dbName, string name){
+BlockInfo* Buffer::getAvaBlock(string& dbName, string& name){
 	string fileName = dbName + "_" + name;
 	FileInfo* tempFile = findFile(dbName, fileName, 0);
 
@@ -103,7 +103,7 @@ BlockInfo* Buffer::getAvaBlock(string dbName, string name){
 	return tempBlock2;
 }
 
-BlockInfo* Buffer::getEmptyBlock(string dbName, string name){
+BlockInfo* Buffer::getEmptyBlock(string& dbName, string& name){
 	string fileName = dbName + "_" + name;
 	FileInfo* tempFile = findFile(dbName, fileName, 1);
 
@@ -143,7 +143,7 @@ BlockInfo* Buffer::getEmptyBlock(string dbName, string name){
 	return tempBlock2;
 }
 
-FileInfo* Buffer::findFile(string dbName, string fileName, int fileType){
+FileInfo* Buffer::findFile(string& dbName, string& fileName, int fileType){
 	FileInfo* tempFile = fileHead->firstFile;
 	FileInfo* oldFile = NULL;
 	while (tempFile){										//search the file
@@ -182,7 +182,7 @@ FileInfo* Buffer::findFile(string dbName, string fileName, int fileType){
 	return tempFile2;
 }
 
-BlockInfo* Buffer::findBlock(string dbName){
+BlockInfo* Buffer::findBlock(string& dbName){
 	if (fileHead->blockAmount < MAX_BLOCK){
 		BlockInfo* tempBlock = new BlockInfo();
 		fileHead->blockAmount++;
@@ -220,11 +220,11 @@ BlockInfo* Buffer::findBlock(string dbName){
 			writeBlock(dbName, tempBlock);
 		}
 		tempBlock->clearBlock();
-	return tempBlock;
+		return tempBlock;
 	}
 }
 
-void Buffer::readBlock(string dbName, string name, int fileType, int blockNum, BlockInfo* tempBlock){
+void Buffer::readBlock(string& dbName, string& name, int fileType, int blockNum, BlockInfo* tempBlock){
 	//从磁盘中读取该块，返回该块
 	//考虑重用代码
 	string fileName = dbName + '_' + name;
@@ -237,8 +237,10 @@ void Buffer::readBlock(string dbName, string name, int fileType, int blockNum, B
 		fileName += ".db";
 
 	ifstream infile(fileName, ios::binary);
-	if (!infile.is_open())							//需要改成抛出错误
+	if (!infile.is_open()){
 		cout << "when read:file open failed" << endl;
+		return;
+	}
 
 	infile.seekg(0, ios::beg);
 	infile.read((char*)(&blockAmount), sizeof(blockAmount));
@@ -247,8 +249,7 @@ void Buffer::readBlock(string dbName, string name, int fileType, int blockNum, B
 	infile.read((char*)(&emptyAmount), sizeof(emptyAmount));
 
 	if ((blockAmount + emptyAmount)<blockNum + 1){
-		delete tempBlock;
-		tempBlock = NULL;
+		tempBlock->blockNum = -2;
 	}
 
 	else{
@@ -256,13 +257,12 @@ void Buffer::readBlock(string dbName, string name, int fileType, int blockNum, B
 		int i = 0;
 		for (i = 0; i<emptyAmount; i++){					//search the empty block
 			if (blockNum == emptyBlock[i]){
-				delete tempBlock;
-				tempBlock = NULL;
+				tempBlock->blockNum = -2;
 				break;
 			}
 		}
 		if (i == emptyAmount){						//not empty
-			infile.seekg((sizeof(BlockInfo)+BLOCKSIZE)*(blockNum), ios::cur);
+			infile.seekg((sizeof(BlockInfo) + BLOCKSIZE)*(blockNum), ios::cur);
 			char* tempCBlock = tempBlock->cBlock;
 			infile.read((char*)tempBlock, sizeof(BlockInfo));
 			tempBlock->cBlock = tempCBlock;
@@ -273,7 +273,7 @@ void Buffer::readBlock(string dbName, string name, int fileType, int blockNum, B
 	infile.close();
 }
 
-void Buffer::readEmptyBlock(string dbName, string name, int fileType, BlockInfo* tempBlock){
+void Buffer::readEmptyBlock(string& dbName, string& name, int fileType, BlockInfo* tempBlock){
 	string fileName = dbName + '_' + name;
 	int blockAmount, emptyAmount;
 	int emptyBlock[100];
@@ -284,8 +284,10 @@ void Buffer::readEmptyBlock(string dbName, string name, int fileType, BlockInfo*
 		fileName += ".db";
 
 	ifstream infile(fileName, ios::binary);
-	if (!infile.is_open())							//需要改成抛出错误
+	if (!infile.is_open()){
 		cout << "when read:file open failed" << endl;
+		return;
+	}
 
 	infile.seekg(0, ios::beg);
 	infile.read((char*)(&blockAmount), sizeof(blockAmount));
@@ -309,9 +311,11 @@ void Buffer::readEmptyBlock(string dbName, string name, int fileType, BlockInfo*
 	infile.close();
 
 	fstream outfile;
-	outfile.open(fileName,ios::binary|ios::in|ios::out);
-	if (!outfile.is_open())							//需要改成抛出错误
+	outfile.open(fileName, ios::binary | ios::in | ios::out);
+	if (!outfile.is_open()){
 		cout << "when write read:file open failed" << endl;
+		return;
+	}
 
 	outfile.seekp(0, ios::beg);
 	outfile.write((char*)(&blockAmount), sizeof(blockAmount));
@@ -320,14 +324,14 @@ void Buffer::readEmptyBlock(string dbName, string name, int fileType, BlockInfo*
 	}
 	outfile.write((char*)(&emptyAmount), sizeof(emptyAmount));
 	outfile.write((char*)(emptyBlock), 100 * sizeof(int));
-	outfile.seekp((sizeof(BlockInfo)+BLOCKSIZE)*(tempBlock->blockNum), ios::cur);
+	outfile.seekp((sizeof(BlockInfo) + BLOCKSIZE)*(tempBlock->blockNum), ios::cur);
 	outfile.write((char*)(tempBlock), sizeof(BlockInfo));
 	outfile.write((char*)tempBlock->cBlock, BLOCKSIZE);
 
 	outfile.close();
 }
 
-void Buffer::writeBlock(string dbName, BlockInfo* tempBlock){
+void Buffer::writeBlock(string& dbName, BlockInfo* tempBlock){
 	string fileName = tempBlock->file->fileName;
 	int fileType = tempBlock->file->type;
 	tempBlock->dirtyBit = 0;
@@ -344,8 +348,10 @@ void Buffer::writeBlock(string dbName, BlockInfo* tempBlock){
 		fileName += ".db";
 
 	ifstream infile(fileName, ios::binary);
-	if (!infile.is_open())							//需要改成抛出错误
+	if (!infile.is_open()){
 		cout << "when write:file open failed" << endl;
+		return;
+	}
 
 	infile.seekg(0, ios::beg);
 	infile.read((char*)(&blockAmount), sizeof(blockAmount));
@@ -357,7 +363,7 @@ void Buffer::writeBlock(string dbName, BlockInfo* tempBlock){
 	infile.read((char*)(emptyBlock), 100 * sizeof(int));
 
 	if (!fileType){									//update the recordAmount
-		infile.seekg((sizeof(BlockInfo)+BLOCKSIZE)*(tempBlock->blockNum), ios::cur);
+		infile.seekg((sizeof(BlockInfo) + BLOCKSIZE)*(tempBlock->blockNum), ios::cur);
 		BlockInfo* oldBlock = new BlockInfo();
 		infile.read((char*)oldBlock, sizeof(BlockInfo));
 
@@ -373,9 +379,11 @@ void Buffer::writeBlock(string dbName, BlockInfo* tempBlock){
 	}
 
 	fstream outfile;
-	outfile.open(fileName,ios::binary|ios::in|ios::out);
-	if (!outfile.is_open())							//需要改成抛出错误
+	outfile.open(fileName, ios::binary | ios::in | ios::out);
+	if (!outfile.is_open()){
 		cout << "when write read:file open failed" << endl;
+		return;
+	}
 
 	outfile.seekp(0, ios::beg);
 	outfile.write((char*)(&blockAmount), sizeof(int));
@@ -385,16 +393,16 @@ void Buffer::writeBlock(string dbName, BlockInfo* tempBlock){
 	}
 	outfile.write((char*)(&emptyAmount), sizeof(emptyAmount));
 	outfile.write((char*)(emptyBlock), 100 * sizeof(int));
-	outfile.seekp((sizeof(BlockInfo)+BLOCKSIZE)*(tempBlock->blockNum), ios::cur);
+	outfile.seekp((sizeof(BlockInfo) + BLOCKSIZE)*(tempBlock->blockNum), ios::cur);
 	outfile.write((char*)tempBlock, sizeof(BlockInfo));
 	outfile.write((char*)tempBlock->cBlock, BLOCKSIZE);
 
 	outfile.close();
 }
 
-void Buffer::addBlock(string dbName, string name, FileInfo* tempFile, BlockInfo* tempBlock){
+void Buffer::addBlock(string& dbName, string& name, FileInfo* tempFile, BlockInfo* tempBlock){
 	string fileName = dbName + "_" + name;
-	
+
 	if (!tempFile->type){
 		fileName = fileName + ".db";
 		int recordLength;
@@ -417,11 +425,11 @@ void Buffer::addBlock(string dbName, string name, FileInfo* tempFile, BlockInfo*
 	tempBlock->file = tempFile;
 }
 
-void Buffer::deleteBlock(string dbName, string name, BlockInfo* tempBlock){
+void Buffer::deleteBlock(string& dbName, string& name, BlockInfo* tempBlock){
 	tempBlock->deleteBlock();
 }
 
-void Buffer::closeFile(string dbName, string fileName, int fileType){
+void Buffer::closeFile(string& dbName, string& fileName, int fileType){
 	FileInfo* tempFile = fileHead->firstFile;
 	FileInfo* oldFile = NULL;
 
@@ -452,7 +460,7 @@ void Buffer::closeFile(string dbName, string fileName, int fileType){
 	}
 }
 
-void Buffer::closeDatabase(string dbName){
+void Buffer::closeDatabase(string& dbName){
 
 	FileInfo* tempFile = fileHead->firstFile;
 	while (tempFile){
@@ -461,7 +469,7 @@ void Buffer::closeDatabase(string dbName){
 	}
 }
 
-bool Buffer::quitProc(string dbName){
+bool Buffer::quitProc(string& dbName){
 	closeDatabase(dbName);
 
 	delete fileHead;

@@ -140,7 +140,7 @@ int Interpreter::run(string SQL, string& execfilename){
 				return 1;
 			}
 			cout << "create database! database name: " << s1 << endl;//test
-			//myApi.createDatabase(s1);
+			myApi.a_createDatabase(s1);
 			return 0;
 		}
 		if (temp.compare("table") == 0){
@@ -213,6 +213,7 @@ int Interpreter::run(string SQL, string& execfilename){
 					table.attrNum++;
 					table.attributes.push_back(attr);
                     table.unique.push_back(attr.name);
+					table.totalLength += attr.length;
 					temp = getword(SQL);
 					if (temp.compare(",") != 0){
 						cout << "Expected','" << endl;
@@ -228,6 +229,7 @@ int Interpreter::run(string SQL, string& execfilename){
 					}
 					table.attrNum++;
 					table.attributes.push_back(attr);
+					table.totalLength += attr.length;
 					temp = getword(SQL);
 					continue;
 				}
@@ -237,7 +239,7 @@ int Interpreter::run(string SQL, string& execfilename){
 				cout << "Expected';'" << endl;
 				return 1;
 			}
-			//myApi.createTable(table);
+			myApi.a_createTable(table);
 //			table.debug(); //test
 //            cout << "!" << endl;
 //            for (int i = 0; i < table.unique.size(); i++) {
@@ -275,7 +277,7 @@ int Interpreter::run(string SQL, string& execfilename){
 				cout << "Expected';'" << endl;
 				return 1;
 			}
-			//myApi.createIndex(index);
+			myApi.a_createIndex(index);
 			index.debug();//test
 			return 0; //执行成功
 
@@ -290,18 +292,18 @@ int Interpreter::run(string SQL, string& execfilename){
 		if (temp.compare("database") == 0){
 			s1 = getword(SQL);
 			cout << "drop database! database name: " << s1 << endl;//test
-			//myApi.dropDatabase(s1);
+			myApi.a_dropDatabase(s1);
 			return 0;
 		}
 		if (temp.compare("table") == 0){
 			s1 = getword(SQL);
 			cout << "drop table! table name: " << s1 << endl;//test
-			//myApi.dropTable(s1);
+			myApi.a_dropTable(s1);
 			return 0;
 		}
 		else if (temp.compare("index") == 0){
 			s1 = getword(SQL);
-			//myApi.dropIndex(s1);
+			myApi.a_dropIndex(s1);
 			cout << "drop index! index name: " << s1 << endl;//test
 			return 0;
 		}
@@ -396,7 +398,7 @@ int Interpreter::run(string SQL, string& execfilename){
 			cout << conds[i].columname << " " << conds[i].op << " " << conds[i].value << endl;
 		}
 		//cout <<"==" <<  conds[0].op << " " << conds.size() << endl;
-		//myApi.selectRecord(tablename, colomns, conds);//colomns, conds可能为空 也可能不为空
+		myApi.a_selectRecord(tablename, colomns, conds);//colomns, conds可能为空 也可能不为空
 		return 0;
 	}
 	else if (opcode.compare("insert") == 0){
@@ -433,7 +435,7 @@ int Interpreter::run(string SQL, string& execfilename){
 			cout << " " << data.records[0].columns[i];
 		}
 		cout << " )" << endl;
-		//myApi.insertRecord(tablename,data);
+		myApi.a_insertRecord(tablename,data);
 		return 0;
 	}
 	else if (opcode.compare("delete") == 0){
@@ -477,7 +479,7 @@ int Interpreter::run(string SQL, string& execfilename){
 			s1 = getword(SQL);
 		}
         else if(temp.compare(";")==0){
-            //myApi.deleteRecord(tablename);
+            myApi.a_deleteRecord(tablename);
             cout << "delete from table! tablename: " << tablename << endl;
             return 0;
         }
@@ -487,14 +489,17 @@ int Interpreter::run(string SQL, string& execfilename){
         }
 
 		cout << "delete from " << tablename << " where " << cond.columname << cond.op << cond.value << endl;
-		//myApi.deleteRecord(tablename,conds);
+		//一个条件？
+		vector<Condition> conds;
+		conds.push_back(cond);
+		myApi.a_deleteRecord(tablename,conds);
 		return 0;
 	}
 
 	else if (opcode.compare("quit") == 0){
-		//myApi.quit();
+		myApi.a_quit();
 		cout << "quit!" << endl;
-		exit(1);
+		exit(0);
 	}
 	else if (opcode.compare("use") == 0){
 		s1 = getword(SQL);
@@ -504,7 +509,7 @@ int Interpreter::run(string SQL, string& execfilename){
 			return 1;
 		}
 		cout << "use database! database name: " << s1 << endl;//test
-		//myApi.useDatabase(s1);
+		myApi.a_useDatabase(s1);
 		return 0;
 	}
 	else if (opcode.compare("execfile") == 0){

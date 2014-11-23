@@ -8,9 +8,10 @@
 #define NE			105			//not equal <>
 
 #define DATAFILE	0
-#define INT			1
-#define FLOAT		2
-#define CHAR		3
+#define INDEXFILE	1
+#define INT			201
+#define FLOAT		202
+#define CHAR		203
 
 #define FILLEMPTY "0"
 #define BLOCKSIZE 4096			//the size of the block
@@ -122,6 +123,18 @@ public:
 	IndexInfo() :blockNum(-1), offset(-1){};
 	IndexInfo(int i_type,int i_length,string i_value):blockNum(-1),offset(-1),type(i_type),length(i_length),value(i_value){};
 	~IndexInfo(){};
+	void initial(int i_type, int i_length, string i_value) {
+		blockNum = -1;
+		offset = -1;
+		type = i_type;
+		length = i_length;
+		value = i_value;
+	}
+	void indexInit(Index& index){
+		name = index.name;
+		tableName = index.tableName;
+		attrName = index.attrName;
+	}
 };
 
 //stants for less than, less equal, greater than, greater equal, equal, not equal respectivly

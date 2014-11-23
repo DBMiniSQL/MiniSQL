@@ -33,49 +33,49 @@ public:
 	}
 
 	~Buffer(){
-		delete fileHead;
-	}
+		//delete fileHead;
+	};
 	//get the block amount
-	int getBlockAmount(string dbName,string name,int fileType);
+	int getBlockAmount(string& dbName,string& name,int fileType);
 
 	//find the data block required
-	BlockInfo* getBlock(string dbName,string name,int blockNum,int type);
+	BlockInfo* getBlock(string& dbName,string& name,int blockNum,int type);
 
 	//find an available block required
-	BlockInfo* getAvaBlock(string dbName,string name); 
+	BlockInfo* getAvaBlock(string& dbName,string& name); 
 
 	//find an empty Block for index
-	BlockInfo* getEmptyBlock(string dbName,string name);
+	BlockInfo* getEmptyBlock(string& dbName,string& name);
 
 	//find the file required or available
-	FileInfo* findFile(string dbName,string fileName,int fileType);
+	FileInfo* findFile(string& dbName,string& fileName,int fileType);
 
 	//find an available block
-	BlockInfo* findBlock(string dbName);
+	BlockInfo* findBlock(string& dbName);
 
 	//find the required block from the Files
-	void readBlock(string dbName,string name,int fileType,int blockNum,BlockInfo* tempBlock);
+	void readBlock(string& dbName,string& name,int fileType,int blockNum,BlockInfo* tempBlock);
 
 	//find an empty block form the Files
-	void readEmptyBlock(string dbName,string name,int fileType,BlockInfo* tempBlock);
+	void readEmptyBlock(string& dbName,string& name,int fileType,BlockInfo* tempBlock);
 	
 	//write back the block to the Files
-	void writeBlock(string dbName,BlockInfo* tempBlock);
+	void writeBlock(string& dbName,BlockInfo* tempBlock);
 
 	//add the block to the file
-	void addBlock(string DB_Name,string name,FileInfo* tempFile,BlockInfo* tempBlock);
+	void addBlock(string& DB_Name,string& name,FileInfo* tempFile,BlockInfo* tempBlock);
 
 	//delete a block for index
-	void deleteBlock(string dbName,string name,BlockInfo* tempBlock);
+	void deleteBlock(string& dbName,string& name,BlockInfo* tempBlock);
 
 	//close the file
-	void closeFile(string dbName,string fileName,int fileType);
+	void closeFile(string& dbName,string& fileName,int fileType);
 
 	//close the database
-	void closeDatabase(string dbName);
+	void closeDatabase(string& dbName);
 
 	//quit the process
-	bool quitProc(string dbName);
+	bool quitProc(string& dbName);
 
 };
 

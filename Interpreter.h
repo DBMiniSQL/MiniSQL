@@ -10,11 +10,14 @@
 #define __miniSQL2__Interpreter__
 
 #include "Definition.h"
+#include "Api.h"
 
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
 #include <stdio.h>
+
+extern Api myApi;
 
 using namespace std;
 

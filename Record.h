@@ -19,20 +19,20 @@ int compareInt(string int1,string int2);
 int compareFloat(string float1,string float2);
 bool compare(string s1, string s2, int type, int condType);
 //获取数据记录
-void getData(string DB_Name, TableInfo table, Data& data);
-void getIndexData(string DB_Name, TableInfo table,vector<Result> results, Data& data);
+void getData(string& DB_Name, TableInfo& table, Data& data);
+void getIndexData(string& DB_Name, TableInfo table,vector<Result> results, Data& data);
 void select(TableInfo table, Data dataIn, Data &dataOut, vector<string>& columns, vector<Condition>& conds);
 void coutPrint(vector<string>& columns, Data& dataOut);
 //包含生成index模块所需info容器
-void insertRecord(string DB_Name, TableInfo table, Data insertedValues, vector<Index> existIndex, vector<IndexInfo>& indexValues);
+void insertRecord(string& DB_Name, TableInfo table, Data insertedValues, vector<Index> existIndex, vector<IndexInfo>& indexValues);
 //初始化
-void initialIndex(string DB_Name, TableInfo table, string Attr_Name, vector<IndexInfo>& indexValues);
+void initialIndex(string& DB_Name, TableInfo table, Index& index, vector<IndexInfo>& indexValues);
 //没索引的select
-void selectRecord(string DB_Name, vector<string>& columns, TableInfo table, vector<Condition>& conds);
+void selectRecord(string& DB_Name, vector<string>& columns, TableInfo table, vector<Condition>& conds);
 //没索引的delete
-void deletRecord(string DB_Name, TableInfo table, vector<Condition>& conds);
+void deletRecord(string& DB_Name, TableInfo table, vector<Condition>& conds);
 //有索引的select
-void printSelectedRecord(string DB_Name, vector<string>& columns, TableInfo table, vector<Condition>& conds, vector<Result> results);
+void printSelectedRecord(string& DB_Name, vector<string>& columns, TableInfo table, vector<Condition>& conds, vector<Result> results);
 //有索引的delete
-void deleteIndexRecord(string DB_Name, TableInfo table, vector<Condition>& conds, vector<Result> results, vector<Index> existIndex, vector<IndexInfo>& indexValues);
+void deleteIndexRecord(string& DB_Name, TableInfo table, vector<Condition>& conds, vector<Result> results, vector<Index> existIndex, vector<IndexInfo>& indexValues);
 #endif

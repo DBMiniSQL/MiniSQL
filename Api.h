@@ -13,7 +13,7 @@
 #include "IndexManager.h"
 
 extern CatalogManager myCatalog;
-extern IndexManager myIndex;
+extern BPlusTree myIndex;
 
 using namespace std;
 
@@ -21,19 +21,19 @@ class Api{
 public:
 	Api(){}
 	~Api(){};
-	void createDatabase(string dbName);
-	void dropDatabase(string dbName);
-	void useDatabase(string dbName);
-	void createTable(TableInfo& table);
-	void dropTable(TableInfo table);
-	void createIndex(Index& index);
- 	void dropIndex(string indexName);
-	void selectRecord(string tableName,vector<string>& columns,vector<Condition>& conds);
-	void insertRecord(string tableName,vector<string>& values);
-	void deleteRecord(string tableName);
-	void deleteRecord(string tableName,vector<Condition>& conds);
+	void a_createDatabase(string dbName);
+	void a_dropDatabase(string dbName);
+	void a_useDatabase(string dbName);
+	void a_createTable(TableInfo& table);
+	void a_dropTable(string tableName);
+	void a_createIndex(Index& index);
+ 	void a_dropIndex(string indexName);
+	void a_selectRecord(string tableName,vector<string>& columns,vector<Condition>& conds);
+	void a_insertRecord(string tableName, Data& data);
+	void a_deleteRecord(string tableName);
+	void a_deleteRecord(string tableName,vector<Condition>& conds);
 
-	void quit();
+	void a_quit();
 	//  void execfile(string fileName);
 };
 
